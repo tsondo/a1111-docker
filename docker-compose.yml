@@ -1,0 +1,15 @@
+version: "3.9"
+services:
+  a1111:
+    image: a1111-test
+    env_file: .env
+    ports:
+      - "7860:7860"
+    volumes:
+      - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
+      - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]

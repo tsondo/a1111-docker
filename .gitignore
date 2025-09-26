@@ -1,0 +1,13 @@
+# Ignore user-specific environment configs
+.env
+
+# Ignore generated outputs
+outputs/
+output/
+
+# Ignore Python cache if you ever mount code
+__pycache__/
+*.pyc
+
+# Ignore Docker build artifacts
+*.log
