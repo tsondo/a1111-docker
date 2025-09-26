@@ -52,12 +52,34 @@ It’s designed so anyone can run it with **their own models and output folders*
 
 ---
 
-## ⚡ Benchmarking (optional)
+## 📦 Pre‑installed Extensions
 
-To test performance, try generating a batch of 10 images at 512×512.  
-The console will show `it/s` (iterations per second) — a good baseline to compare across GPUs.
+This image comes with several popular AUTOMATIC1111 extensions already included:
 
----
+- **[ADetailer](https://github.com/Bing-su/adetailer)** – automatic face/feature detection and targeted inpainting.  
+- **[Dynamic Prompts](https://github.com/adieyal/sd-dynamic-prompts)** – template‑style prompts with wildcards, randomization, and combinatorics.  
+- **[ControlNet](https://github.com/Mikubill/sd-webui-controlnet)** – adds pose/depth/edge guidance networks for more controllable generations.  
+- **[Civitai Helper](https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper)** – integrates with Civitai for model previews, metadata, and management.  
+- **[Rembg](https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg)** – background removal using ONNX models (U²‑Net, ISNet, etc.).  
+- **[Tag Autocomplete](https://github.com/DominikDoom/a1111-sd-webui-tagcomplete)** – adds autocomplete for prompt tags.  
+- **[Prompt All‑in‑One](https://github.com/Physton/sd-webui-prompt-all-in-one)** – manage prompt presets, history, and variations.  
+- **[Image Browser](https://github.com/yfszzx/stable-diffusion-webui-images-browser)** – gallery tab to browse, search, and filter generated images.  
+- **[OpenPose Editor](https://github.com/fkunn1326/openpose-editor)** – GUI tool to draw/edit poses for ControlNet.
+
+All extensions can be updated or toggled directly from the WebUI’s Extensions tab.
+
+## 🎯 Why These Extensions?
+
+This image isn’t meant to be a kitchen sink — it’s a curated set of extensions chosen for their balance of **utility, stability, and reproducibility**.  
+
+- **Utility:** Each extension solves a common creative or workflow need (detail refinement, prompt management, controllable generation, background removal, etc.).  
+- **Stability:** Only widely used, actively maintained extensions are included, minimizing the risk of breakage or obscure dependencies.  
+- **Reproducibility:** By baking them into the image, collaborators and future users get the same baseline environment, reducing “it works on my machine” issues.  
+
+The goal is to provide a **trusted starting point**: powerful enough for everyday use, lean enough to stay maintainable, and transparent enough that anyone can see exactly what’s inside.
+
+
+
 
 ## 🛠️ Troubleshooting
 

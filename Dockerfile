@@ -14,6 +14,45 @@ RUN python3 -m pip install --upgrade pip
 RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui /workspace/stable-diffusion-webui
 WORKDIR /workspace/stable-diffusion-webui
 
+# === Extensions ===
+
+# ADetailer: automatic face/feature detection + targeted inpainting for sharper details
+RUN git clone https://github.com/Bing-su/adetailer.git \
+    /workspace/stable-diffusion-webui/extensions/adetailer
+
+# Dynamic Prompts: template-style prompts with wildcards, randomization, and combinatorics
+RUN git clone https://github.com/adieyal/sd-dynamic-prompts.git \
+    /workspace/stable-diffusion-webui/extensions/sd-dynamic-prompts
+
+# ControlNet: adds pose/depth/edge guidance networks for more controllable generations
+RUN git clone https://github.com/Mikubill/sd-webui-controlnet.git \
+    /workspace/stable-diffusion-webui/extensions/sd-webui-controlnet
+
+# Civitai Helper: integrates with Civitai for model previews, metadata, and management
+RUN git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git \
+    /workspace/stable-diffusion-webui/extensions/Stable-Diffusion-Webui-Civitai-Helper
+
+# Rembg: background removal using ONNX models (U²‑Net, ISNet, etc.)
+RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git \
+    /workspace/stable-diffusion-webui/extensions/stable-diffusion-webui-rembg
+
+# Tag Autocomplete: adds autocomplete for prompt tags (based on Danbooru/other tag lists)
+RUN git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git \
+    /workspace/stable-diffusion-webui/extensions/a1111-sd-webui-tagcomplete
+
+# Prompt All-in-One: manage prompt presets, history, and variations in a structured way
+RUN git clone https://github.com/Physton/sd-webui-prompt-all-in-one.git \
+    /workspace/stable-diffusion-webui/extensions/sd-webui-prompt-all-in-one
+
+# Image Browser: gallery tab to browse, search, and filter generated images inside WebUI
+RUN git clone https://github.com/yfszzx/stable-diffusion-webui-images-browser.git \
+    /workspace/stable-diffusion-webui/extensions/stable-diffusion-webui-images-browser
+
+# OpenPose Editor: GUI tool to draw/edit poses for ControlNet
+RUN git clone https://github.com/fkunn1326/openpose-editor.git \
+    /workspace/stable-diffusion-webui/extensions/openpose-editor
+
+
 # Create virtual environment and install dependencies
 RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
     /workspace/stable-diffusion-webui/venv/bin/pip install --upgrade pip && \
