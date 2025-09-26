@@ -16,7 +16,7 @@ It’s designed so anyone can run it with **their own models and output folders*
 
 1. Clone or download this repo:
    ```bash
-   git clone https://github.com/<your-repo>/a1111-docker.git
+   git clone https://github.com/tsondo/a1111-docker.git
    cd a1111-docker
    ```
 
