@@ -2,7 +2,7 @@
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
 ![Extension](https://img.shields.io/badge/ADetailer-enabled-success)
-![License](https://img.shields.io/github/license/Tsondo/a1111-docker)
+![License](https://img.shields.io/github/license/tsondo/a1111-docker)
 
 # 🚀 Automatic1111 in Docker (GPU‑accelerated)
 
