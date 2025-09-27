@@ -9,6 +9,9 @@ services:
     volumes:
       - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
       - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
+      - ${WILDCARD_DIR}:/workspace/stable-diffusion-webui/extensions/dynamic-prompts/wildcards
+    environment:
+      - WILDCARD_DIR=${WILDCARD_DIR}
     deploy:
       resources:
         reservations:
