@@ -29,12 +29,12 @@ RUN git clone https://github.com/Mikubill/sd-webui-controlnet.git \
     /workspace/stable-diffusion-webui/extensions/sd-webui-controlnet
 
 # Civitai Helper: integrates with Civitai for model previews, metadata, and management
-RUN git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git \
-    /workspace/stable-diffusion-webui/extensions/Stable-Diffusion-Webui-Civitai-Helper
+#RUN git clone https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper.git \
+#   /workspace/stable-diffusion-webui/extensions/Stable-Diffusion-Webui-Civitai-Helper
 
 # Rembg: background removal using ONNX models (U²‑Net, ISNet, etc.)
-RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git \
-    /workspace/stable-diffusion-webui/extensions/stable-diffusion-webui-rembg
+#RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg.git \
+#    /workspace/stable-diffusion-webui/extensions/stable-diffusion-webui-rembg
 
 # Tag Autocomplete: adds autocomplete for prompt tags (based on Danbooru/other tag lists)
 RUN git clone https://github.com/DominikDoom/a1111-sd-webui-tagcomplete.git \
