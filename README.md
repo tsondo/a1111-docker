@@ -6,7 +6,7 @@ It’s designed so anyone can run it with **their own models and output folders*
 ---
 
 ## 📦 Prerequisites
-- Docker Desktop with WSL2 backend (Windows) or Docker Engine (Linux)
+- Docker Desktop with WSL2 backend (Windows) or Docker Engine (Linux). Enable integration with additional distros 20 current compatible linux distro chosen.
 - NVIDIA GPU + drivers + CUDA toolkit installed
 - `docker compose` available in your shell
 
@@ -58,6 +58,10 @@ This image comes with several popular AUTOMATIC1111 extensions already included:
 
 - **[ADetailer](https://github.com/Bing-su/adetailer)** – automatic face/feature detection and targeted inpainting.  
 - **[Dynamic Prompts](https://github.com/adieyal/sd-dynamic-prompts)** – template‑style prompts with wildcards, randomization, and combinatorics.  
+
+
+Future additions planned (still testing):
+
 - **[ControlNet](https://github.com/Mikubill/sd-webui-controlnet)** – adds pose/depth/edge guidance networks for more controllable generations.  
 - **[Civitai Helper](https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper)** – integrates with Civitai for model previews, metadata, and management.  
 - **[Rembg](https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg)** – background removal using ONNX models (U²‑Net, ISNet, etc.).  
@@ -77,8 +81,6 @@ This image isn’t meant to be a kitchen sink — it’s a curated set of extens
 - **Reproducibility:** By baking them into the image, collaborators and future users get the same baseline environment, reducing “it works on my machine” issues.  
 
 The goal is to provide a **trusted starting point**: powerful enough for everyday use, lean enough to stay maintainable, and transparent enough that anyone can see exactly what’s inside.
-
-
 
 
 ## 🛠️ Troubleshooting
