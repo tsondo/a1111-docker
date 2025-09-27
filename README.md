@@ -2,6 +2,7 @@
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
 ![Extension](https://img.shields.io/badge/ADetailer-enabled-success)
+![License](https://img.shields.io/github/license/tsondo/a1111-docker)
 
 # 🚀 Automatic1111 in Docker (GPU‑accelerated)
 
@@ -106,7 +107,7 @@ Anyone can use this setup by:
 ```
 ## License
 
-This project packages [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui),  
-which is licensed under the [GNU Affero General Public License v3 (AGPL‑3.0)](https://www.gnu.org/licenses/agpl-3.0.html).
+## License
 
-All modifications in this repository are also provided under the AGPL‑3.0.
+This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute it with proper attribution.
+

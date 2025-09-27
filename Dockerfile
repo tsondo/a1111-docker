@@ -17,6 +17,9 @@ WORKDIR /workspace/stable-diffusion-webui
 # Add ADetailer extension
 RUN git clone https://github.com/Bing-su/adetailer /workspace/stable-diffusion-webui/extensions/adetailer
 
+# Add Dynamic Prompts extension
+RUN git clone https://github.com/adieyal/sd-dynamic-prompts.git /workspace/stable-diffusion-webui/extensions/sd-dynamic-prompts
+
 # Create virtual environment and install dependencies
 RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
     /workspace/stable-diffusion-webui/venv/bin/pip install --upgrade pip && \
