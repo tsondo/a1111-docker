@@ -1,10 +1,17 @@
+version: "3.9"
 services:
   a1111:
     build: .
     container_name: a1111
+    env_file: .env
     ports:
       - "7860:7860"
     volumes:
-      - ./data:/workspace/data
-    # add more volumes if you want to persist models, configs, etc.
-    # e.g. - ./models:/workspace/stable-diffusion-webui/models
+      - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
+      - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    runtime: nvidia
