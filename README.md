@@ -35,6 +35,7 @@ It’s designed so anyone can run it with **their own models and output folders*
    ```env
    MODEL_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/models
    OUTPUT_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/output
+   WILDCARD_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/extensions/sd-dynamic-prompts/wildcards
    ```
 
 4. Run the container:
