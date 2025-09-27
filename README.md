@@ -1,3 +1,9 @@
+
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
+![Extension](https://img.shields.io/badge/ADetailer-enabled-success)
+![License](https://img.shields.io/github/license/Tsondo/a1111-docker)
+
 # 🚀 Automatic1111 in Docker (GPU‑accelerated)
 
 This repo packages [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) into a reproducible Docker image with GPU passthrough.  
