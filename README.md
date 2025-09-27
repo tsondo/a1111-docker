@@ -61,15 +61,17 @@ It’s designed so anyone can run it with **their own models and output folders*
 
 ## 📦 Pre‑installed Extensions
 
-This image comes with several popular AUTOMATIC1111 extensions already included:
+This image comes two popular AUTOMATIC1111 extensions already intalled:
 
 - **[ADetailer](https://github.com/Bing-su/adetailer)** – automatic face/feature detection and targeted inpainting.  
 - **[Dynamic Prompts](https://github.com/adieyal/sd-dynamic-prompts)** – template‑style prompts with wildcards, randomization, and combinatorics.  
 
 
-Future additions planned (still testing):
+Recommended extentions, tested with this build. Add from the extensions tab:
 
 - **[ControlNet](https://github.com/Mikubill/sd-webui-controlnet)** – adds pose/depth/edge guidance networks for more controllable generations.  
+
+Still in testing:
 - **[Civitai Helper](https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper)** – integrates with Civitai for model previews, metadata, and management.  
 - **[Rembg](https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg)** – background removal using ONNX models (U²‑Net, ISNet, etc.).  
 - **[Tag Autocomplete](https://github.com/DominikDoom/a1111-sd-webui-tagcomplete)** – adds autocomplete for prompt tags.  
@@ -77,7 +79,7 @@ Future additions planned (still testing):
 - **[Image Browser](https://github.com/yfszzx/stable-diffusion-webui-images-browser)** – gallery tab to browse, search, and filter generated images.  
 - **[OpenPose Editor](https://github.com/fkunn1326/openpose-editor)** – GUI tool to draw/edit poses for ControlNet.
 
-All extensions can be updated or toggled directly from the WebUI’s Extensions tab.
+All extensions can be added, updated or removed directly from the WebUI’s Extensions tab.
 
 ## 🎯 Why These Extensions?
 
