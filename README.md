@@ -94,7 +94,6 @@ Here’s the revised and bulletproof version of your **⚙️ Project Setup** se
    MODEL_DIR=/home/todd/a1111-docker/models
    OUTPUT_DIR=/home/todd/a1111-docker/output
    WILDCARD_DIR=/home/todd/a1111-docker/wildcards
-   EXTENSIONS_DIR=/home/todd/a1111-docker/extensions
    CONFIG_DIR=/home/todd/a1111-docker/config
    EMBEDDINGS_DIR=/home/todd/a1111-docker/embeddings
    LOGS_DIR=/home/todd/a1111-docker/logs
