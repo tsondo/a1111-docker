@@ -1,4 +1,3 @@
-
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
 ![Extension](https://img.shields.io/badge/ADetailer-enabled-success)
@@ -6,19 +5,55 @@
 
 # 🚀 Automatic1111 in Docker (GPU‑accelerated)
 
-This repo packages [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) into a reproducible Docker image with GPU passthrough.  
-It’s designed so anyone can run it with **their own models and output folders** by editing a simple `.env` file.
+This repo wraps [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui) in a reproducible Docker setup with GPU support.  
+Just edit the `.env` file to use your own models, outputs, and wildcards.
 
 ---
 
-## 📦 Prerequisites
-- Docker Desktop with WSL2 backend (Windows) or Docker Engine (Linux). Enable integration with additional distros 20 current compatible linux distro chosen.
-- NVIDIA GPU + drivers + CUDA toolkit installed
-- `docker compose` available in your shell
+## 📦 Requirements
+
+- **Windows 11**: Docker Desktop with WSL2 backend, plus integrated local install of WSL  
+- **Linux**: Docker Engine with NVIDIA runtime
 
 ---
 
-## ⚙️ Setup
+## 🖥️ Windows 11 Setup
+
+To run this on Windows 11, follow these steps:
+
+1. **Install WSL2**  
+   Open PowerShell as Administrator and run:  
+   ```powershell
+   wsl --install -d Ubuntu-22.04
+   ```  
+   This installs Ubuntu 22.04 from the Microsoft Store. Many other distros will work, but I've tested this one.
+
+2. **Install Docker Desktop**  
+   Download from [docker.com](https://www.docker.com/products/docker-desktop) and complete setup.
+
+3. **Enable WSL Integration**  
+   In Docker Desktop → Settings → Resources → WSL Integration  
+   Enable it for your Ubuntu distro (e.g., `Ubuntu-22.04`)
+
+4. **Open your WSL shell**  
+   Press `Windows + S`, type `Ubuntu`, and launch the app.  
+   You’ll land in your Linux home directory (e.g., `/home/<whatever you chose for your username>`)
+
+5. **Run Docker commands inside WSL**  
+   Always use the WSL shell to run commands like:  
+   ```bash
+   docker compose up -d
+   ```
+
+6. **(Optional) Enable GPU support**  
+   If you have an NVIDIA GPU and want CUDA available for other projects, install the [CUDA toolkit for WSL](https://docs.nvidia.com/cuda/wsl-user-guide/index.html) and verify with:  
+   ```bash
+   nvidia-smi
+   ```
+   For this project is it not strictly necessary because CUDA will be pulled into the docker image anyway.
+---
+
+## ⚙️ A1111 for Docker Setup
 
 1. Clone or download this repo:
    ```bash
@@ -31,12 +66,13 @@ It’s designed so anyone can run it with **their own models and output folders*
    cp .env.example .env
    ```
 
-3. Edit `.env` to point to your own folders:
+3. Create and edit `.env` to point to your own folders (this is optional: it allows you to keep your models, output, and prompt wildcards persistent)
    ```env
    MODEL_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/models
    OUTPUT_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/output
    WILDCARD_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/extensions/sd-dynamic-prompts/wildcards
    ```
+Note: you can mount windows folders for these, but I recommend you create a folder inside your WSL because it's much faster. E.g. MODEL_DIR=/home/yourusername/models
 
 4. Run the container:
    ```bash
@@ -51,12 +87,14 @@ It’s designed so anyone can run it with **their own models and output folders*
 - Place `.safetensors` or `.ckpt` files into:
   ```
   <MODEL_DIR>/Stable-diffusion/
+Note: I recomment separate folders by model type. For example, create an sdxl folder, and an sd1.5 folder. Do this for both Stable-diffusion and your lora folder so you can make sure they match when you create prompts. If you don't know what that means yet, refer back here after you start using different base models and loras.
+  
   ```
 - Generated images will appear in:
   ```
-  <OUTPUT_DIR>/txt2img-images/
+  <OUTPUT_DIR>/
   ```
-
+SUbfolders will be created based on what type of output, text-image, etc, and by date.
 ---
 
 ## 📦 Pre‑installed Extensions
@@ -67,7 +105,7 @@ This image comes two popular AUTOMATIC1111 extensions already intalled:
 - **[Dynamic Prompts](https://github.com/adieyal/sd-dynamic-prompts)** – template‑style prompts with wildcards, randomization, and combinatorics.  
 
 
-Recommended extentions, tested with this build. Add from the extensions tab:
+Recommended extentions, tested with this build. Add from the extensions tab (it's quick):
 
 - **[ControlNet](https://github.com/Mikubill/sd-webui-controlnet)** – adds pose/depth/edge guidance networks for more controllable generations.  
 
