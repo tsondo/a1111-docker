@@ -6,20 +6,30 @@ services:
     ports:
       - "7860:7860"
     volumes:
+      # Models and outputs
       - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
       - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
+
+      # Dynamic prompts and extensions
       - ${WILDCARD_DIR}:/workspace/stable-diffusion-webui/extensions/dynamic-prompts/wildcards
       - ${EXTENSIONS_DIR}:/workspace/stable-diffusion-webui/extensions
+
+      # Config files (must exist as files before mounting)
       - ${CONFIG_DIR}/config.json:/workspace/stable-diffusion-webui/config.json
       - ${CONFIG_DIR}/ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
+
+      # Optional mounts
       - ${EMBEDDINGS_DIR}:/workspace/stable-diffusion-webui/embeddings
       - ${LOGS_DIR}:/workspace/stable-diffusion-webui/logs
       - ${CACHE_DIR}:/workspace/stable-diffusion-webui/cache
+
     environment:
       - WILDCARD_DIR=${WILDCARD_DIR}
+
     deploy:
       resources:
         reservations:
           devices:
             - capabilities: [gpu]
+
     runtime: nvidia
