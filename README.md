@@ -65,9 +65,12 @@ To run this on Windows 11, follow these steps:
    ```bash
    cp .env.example .env
    ```
-   Note: in linux .anything are hidden by defaule. Use ls -la to see them.
-
-3. Create and edit `.env` to point to your own folders (this is optional: it allows you to keep your models, output, and prompt wildcards persistent)
+   Note: in linux .anything are hidden by default. Use ls -la to see them if you are not sure.
+  
+4. Edit `.env` to point to your own folders (this is optional: it allows you to keep your models, output, and prompt wildcards persistent)
+ ```bash
+   nano .env
+   ```
    ```env
    MODEL_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/models
    OUTPUT_DIR=/mnt/d/Projects/python/automatic1111/stable-diffusion-webui/output
