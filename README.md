@@ -91,14 +91,15 @@ Note: you can mount windows folders for these, but I recommend you create a fold
 - Place `.safetensors` or `.ckpt` files into:
   ```
   <MODEL_DIR>/Stable-diffusion/
-Note: I recomment separate folders by model type. For example, create an sdxl folder, and an sd1.5 folder. Do this for both Stable-diffusion and your lora folder so you can make sure they match when you create prompts. If you don't know what that means yet, refer back here after you start using different base models and loras.
-  
   ```
+Note: I recomment separate folders by model type. For example, create an sdxl folder, and an sd1.5 folder. Do this for both Stable-diffusion and your lora folder so you can make sure they match when you create prompts. If you don't know what that means yet, refer back here after you start using different base models and loras.
+
 - Generated images will appear in:
   ```
   <OUTPUT_DIR>/
   ```
-SUbfolders will be created based on what type of output, text-image, etc, and by date.
+Subfolders will be created as usual by A1111, for example text-image, img-img, then by date.
+
 ---
 
 ## 📦 Pre‑installed Extensions
