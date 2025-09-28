@@ -70,11 +70,11 @@ It’s designed for persistent use: your models, outputs, wildcards, and extensi
 
 3. Edit `.env` to point to your local folders:
    ```env
-   MODEL_DIR=/home/todd/a1111-docker/models
-   OUTPUT_DIR=/home/todd/a1111-docker/output
-   WILDCARD_DIR=/home/todd/a1111-docker/wildcards
-   EXTENSIONS_DIR=/home/todd/a1111-docker/extensions
-   CONFIG_DIR=/home/todd/a1111-docker/config
+   MODEL_DIR=/home/<yourusername>/a1111-docker/models
+   OUTPUT_DIR=/home/<yourusername>/a1111-docker/output
+   WILDCARD_DIR=/home/<yourusername>/a1111-docker/wildcards
+   EXTENSIONS_DIR=/home/<yourusername>/a1111-docker/extensions
+   CONFIG_DIR=/home/<yourusername>/a1111-docker/config
    ```
 
    These folders are mounted into the container at runtime.  
