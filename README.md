@@ -78,7 +78,7 @@ Here’s the revised and bulletproof version of your **⚙️ Project Setup** se
 3. **Create required folders and config files**
    These folders will be mounted into the container and persist across runs:
    ```bash
-   mkdir -p models/Stable-diffusion output wildcards extensions config embeddings logs cache
+   mkdir -p models/Stable-diffusion outputs wildcards extensions config embeddings logs cache
    touch config/config.json config/ui-config.json
    sudo chown -R $USER:$USER models output wildcards extensions config embeddings logs cache
    ```
