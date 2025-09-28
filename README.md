@@ -58,6 +58,10 @@ It’s designed for persistent use: your models, outputs, wildcards, and extensi
 
 ---
 
+Here’s the revised and bulletproof version of your **⚙️ Project Setup** section, with all the necessary fixes for folder creation, file ownership, and config file persistence. This version ensures the container runs cleanly on first launch and preserves UI settings across rebuilds:
+
+---
+
 ## ⚙️ Project Setup
 
 1. **Clone the repo**
@@ -71,12 +75,15 @@ It’s designed for persistent use: your models, outputs, wildcards, and extensi
    cp .env.example .env
    ```
 
-3. **Create required folders for mounted volumes**
+3. **Create required folders and config files**
    These folders will be mounted into the container and persist across runs:
    ```bash
    mkdir -p models/Stable-diffusion output wildcards extensions config embeddings logs cache
+   touch config/config.json config/ui-config.json
+   sudo chown -R $USER:$USER models output wildcards extensions config embeddings logs cache
    ```
-   You can organize models by type inside `models/Stable-diffusion/` (e.g., `sd1.5/`, `sdxl/`, `lora/`).
+
+   🧠 Tip: You can organize models by type inside `models/Stable-diffusion/` (e.g., `sd1.5/`, `sdxl/`).
 
 4. **Edit `.env` to match your local paths**
    ```bash
@@ -89,13 +96,15 @@ It’s designed for persistent use: your models, outputs, wildcards, and extensi
    WILDCARD_DIR=/home/todd/a1111-docker/wildcards
    EXTENSIONS_DIR=/home/todd/a1111-docker/extensions
    CONFIG_DIR=/home/todd/a1111-docker/config
+   EMBEDDINGS_DIR=/home/todd/a1111-docker/embeddings
+   LOGS_DIR=/home/todd/a1111-docker/logs
+   CACHE_DIR=/home/todd/a1111-docker/cache
    ```
 
 5. **Launch the container**
    ```bash
    docker compose up -d
    ```
-
 ---
 
 ## 🖼️ Usage
