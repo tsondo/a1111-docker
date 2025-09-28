@@ -1,13 +1,22 @@
-# Ignore user-specific environment configs
+# Ignore local asset folders
+models/
+output/
+wildcards/
+extensions/
+config/
+embeddings/
+logs/
+cache/
+
+# Ignore local environment config
 .env
 
-# Ignore generated outputs
-outputs/
-output/
-
-# Ignore Python cache if you ever mount code
+# Ignore Python and Docker artifacts
+*.log
 __pycache__/
 *.pyc
-
-# Ignore Docker build artifacts
-*.log
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.egg-info/

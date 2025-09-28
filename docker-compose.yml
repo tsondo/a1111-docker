@@ -9,6 +9,12 @@ services:
       - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
       - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
       - ${WILDCARD_DIR}:/workspace/stable-diffusion-webui/extensions/dynamic-prompts/wildcards
+      - ${EXTENSIONS_DIR}:/workspace/stable-diffusion-webui/extensions
+      - ${CONFIG_DIR}/config.json:/workspace/stable-diffusion-webui/config.json
+      - ${CONFIG_DIR}/ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
+      - ${EMBEDDINGS_DIR}:/workspace/stable-diffusion-webui/embeddings
+      - ${LOGS_DIR}:/workspace/stable-diffusion-webui/logs
+      - ${CACHE_DIR}:/workspace/stable-diffusion-webui/cache
     environment:
       - WILDCARD_DIR=${WILDCARD_DIR}
     deploy:
