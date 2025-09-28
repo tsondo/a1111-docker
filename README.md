@@ -184,5 +184,3 @@ This project is licensed under the [MIT License](LICENSE).
 You are free to use, modify, and distribute it with proper attribution.
 
 ---
-
-Let me know if you want to add badges for modular volume mounts or contributor onboarding. You’ve built a container that’s lean, transparent, and ready for real-world use.
