@@ -1,11 +1,14 @@
-Here’s a refined version of your README that reflects your current setup, clarifies what’s mounted and persistent, and aligns with your modular, snapshot-free philosophy. I’ve preserved your tone and structure while tightening clarity and consistency:
-
----
-
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
-![Extension](https://img.shields.io/badge/ADetailer-enabled-success)
+![GPU](https://img.shields.io/badge/GPU-NVIDIA%20enabled-yellowgreen)
+![WSL2](https://img.shields.io/badge/WSL2-supported-green)
+![Docker](https://img.shields.io/badge/docker-ready-blue)
+![Volumes](https://img.shields.io/badge/volumes-modular%20%26%20persistent-blueviolet)
+![Extensions](https://img.shields.io/badge/extensions-webUI%20managed-orange)
+![Snapshot](https://img.shields.io/badge/snapshots-not%20required-lightgrey)
+![Tested](https://img.shields.io/badge/tested-4080%20%7C%205090-green)
 ![License](https://img.shields.io/github/license/tsondo/a1111-docker)
+
 
 # 🚀 Automatic1111 in Docker (GPU‑accelerated)
 
