@@ -67,7 +67,7 @@ To run this on Windows 11, follow these steps:
    ```
    Note: in linux .anything are hidden by default. Use ls -la to see them if you are not sure.
   
-4. Edit `.env` to point to your own folders (this is optional: it allows you to keep your models, output, and prompt wildcards persistent)
+4. Edit `.env` to point to your own folders. This is required. It allows you to keep your models, output, and prompt wildcards persistent each run.
  ```bash
    nano .env
    ```
