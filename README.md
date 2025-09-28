@@ -154,7 +154,7 @@ Anyone can use this setup by:
 ```
  `docker compose up`
 ```
-I've only tested this on Windows 11, various workstations with Nvidia 4080 and 5090.
+I've only tested this on Windows 11 with Ubuntu 22.04 WSL, across various workstations with Nvidia 4080 and 5090 GPUs.
 
 ## License
 
