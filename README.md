@@ -146,12 +146,15 @@ The goal is to provide a **trusted starting point**: powerful enough for everyda
 ## 👥 Sharing
 
 Anyone can use this setup by:
-1. Cloning the repo
-2. Copying `.env.example` → `.env`
-3. Editing paths
-4. Running `docker compose up`
+1. Setting up the prerequesites
+2. Cloning the repo
+3. Copying `.env.example` → `.env`
+4. Editing paths
+5. Running
 ```
-## License
+ `docker compose up`
+```
+I've only tested this on Windows 11, various workstations with Nvidia 4080 and 5090.
 
 ## License
 
