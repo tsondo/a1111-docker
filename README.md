@@ -60,30 +60,38 @@ It’s designed for persistent use: your models, outputs, wildcards, and extensi
 
 ## ⚙️ Project Setup
 
-1. Clone the repo:
+1. **Clone the repo**
    ```bash
    git clone https://github.com/tsondo/a1111-docker.git
    cd a1111-docker
    ```
 
-2. Copy the environment template:
+2. **Copy the environment template**
    ```bash
    cp .env.example .env
    ```
 
-3. Edit `.env` to point to your local folders:
+3. **Create required folders for mounted volumes**
+   These folders will be mounted into the container and persist across runs:
+   ```bash
+   mkdir -p models/Stable-diffusion output wildcards extensions config embeddings logs cache
+   ```
+   You can organize models by type inside `models/Stable-diffusion/` (e.g., `sd1.5/`, `sdxl/`, `lora/`).
+
+4. **Edit `.env` to match your local paths**
+   ```bash
+   nano .env
+   ```
+   Example:
    ```env
-   MODEL_DIR=/home/<yourusername>/a1111-docker/models
-   OUTPUT_DIR=/home/<yourusername>/a1111-docker/output
-   WILDCARD_DIR=/home/<yourusername>/a1111-docker/wildcards
-   EXTENSIONS_DIR=/home/<yourusername>/a1111-docker/extensions
-   CONFIG_DIR=/home/<yourusername>/a1111-docker/config
+   MODEL_DIR=/home/todd/a1111-docker/models
+   OUTPUT_DIR=/home/todd/a1111-docker/output
+   WILDCARD_DIR=/home/todd/a1111-docker/wildcards
+   EXTENSIONS_DIR=/home/todd/a1111-docker/extensions
+   CONFIG_DIR=/home/todd/a1111-docker/config
    ```
 
-   These folders are mounted into the container at runtime.  
-   You can use Windows-mounted paths (e.g., `/mnt/d/...`), but native WSL folders are faster.
-
-4. Launch the container:
+5. **Launch the container**
    ```bash
    docker compose up -d
    ```
