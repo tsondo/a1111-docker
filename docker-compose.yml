@@ -12,7 +12,6 @@ services:
 
       # Dynamic prompts and extensions
       - ${WILDCARD_DIR}:/workspace/stable-diffusion-webui/extensions/dynamic-prompts/wildcards
-      - ${EXTENSIONS_DIR}:/workspace/stable-diffusion-webui/extensions
 
       # Config files (must exist as files before mounting)
       - ${CONFIG_DIR}/config.json:/workspace/stable-diffusion-webui/config.json
