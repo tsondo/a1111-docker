@@ -10,10 +10,10 @@ services:
       - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
       - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
 
-      # Dynamic prompts and extensions
+      # Wildcards only (preserves built-in extensions)
       - ${WILDCARD_DIR}:/workspace/stable-diffusion-webui/extensions/dynamic-prompts/wildcards
 
-      # Config files (must exist as files before mounting)
+      # Config files (must exist before mounting)
       - ${CONFIG_DIR}/config.json:/workspace/stable-diffusion-webui/config.json
       - ${CONFIG_DIR}/ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
 
@@ -21,6 +21,9 @@ services:
       - ${EMBEDDINGS_DIR}:/workspace/stable-diffusion-webui/embeddings
       - ${LOGS_DIR}:/workspace/stable-diffusion-webui/logs
       - ${CACHE_DIR}:/workspace/stable-diffusion-webui/cache
+
+      # Named volume for extensions (preserves GUI installs across restarts)
+      - extensions-data:/workspace/stable-diffusion-webui/extensions
 
     environment:
       - WILDCARD_DIR=${WILDCARD_DIR}
@@ -32,3 +35,6 @@ services:
             - capabilities: [gpu]
 
     runtime: nvidia
+
+volumes:
+  extensions-data:
