@@ -12,9 +12,11 @@ services:
       - ./models:/workspace/stable-diffusion-webui/models
       - ./outputs:/workspace/stable-diffusion-webui/outputs
       - ./extensions:/workspace/stable-diffusion-webui/extensions
+      - ./extensions/wildcards:/workspace/stable-diffusion-webui/extensions/wildcards
       - ./embeddings:/workspace/stable-diffusion-webui/embeddings
       - ./logs:/workspace/stable-diffusion-webui/logs
       - ./cache:/workspace/stable-diffusion-webui/cache
+      - ./cache/huggingface:/workspace/stable-diffusion-webui/cache/huggingface
       - ./repositories:/workspace/stable-diffusion-webui/repositories
     deploy:
       resources:

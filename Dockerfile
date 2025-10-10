@@ -60,12 +60,16 @@ RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
 ARG USER_ID=1000
 ARG GROUP_ID=1000
 RUN mkdir -p /workspace/stable-diffusion-webui/models/hypernetworks && \
+    mkdir -p /workspace/stable-diffusion-webui/cache/huggingface && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/models && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/outputs && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/extensions && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/logs && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/cache && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/repositories
+
+# Hugging Face cache location
+ENV HF_HOME="/workspace/stable-diffusion-webui/cache/huggingface"
 
 # Environment overrides for A1111
 ENV TORCH_COMMAND="echo 'Skipping torch install, already provided in venv'"

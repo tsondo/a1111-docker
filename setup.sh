@@ -30,6 +30,7 @@ PERSIST_DIRS=(
   embeddings
   logs
   cache
+  cache/huggingface
   repositories
 )
 
