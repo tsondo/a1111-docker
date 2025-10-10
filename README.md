@@ -1,6 +1,8 @@
 ![Build](https://img.shields.io/badge/build-passing-brightgreen)
 ![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
-![Extension](https://img.shields.io/badge/ADetailer-enabled-success)
+![Torch](https://img.shields.io/badge/Torch-2.2.2-informational)
+![xFormers](https://img.shields.io/badge/xFormers-enabled-success)
+![Extension](https://img.shields.io/badge/ADetailer-persistent-success)
 ![License](https://img.shields.io/github/license/tsondo/a1111-docker)
 
 # 🧠 a1111-docker
