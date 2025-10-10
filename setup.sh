@@ -54,7 +54,7 @@ for d in "${PERSIST_DIRS[@]}"; do
   sudo chown -R "$CONTAINER_UID:$CONTAINER_GID" "$REPO_DIR/$d"
 done
 
-# --- Prepopulate config files if missing ---
+# --- Prepopulate UI config files if missing ---
 for f in config.json ui-config.json; do
   TARGET="$REPO_DIR/configs/$f"
   if [ ! -s "$TARGET" ]; then
@@ -63,13 +63,26 @@ for f in config.json ui-config.json; do
   fi
 done
 
-# --- Ensure model config is present ---
-CONFIG_PATH="$REPO_DIR/configs/v1-inference.yaml"
-if [ ! -f "$CONFIG_PATH" ]; then
-  echo "[INFO] Fetching v1-inference.yaml for SD 1.5..."
-  wget https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml \
-       -O "$CONFIG_PATH"
-fi
+# --- Fetch all known model config files ---
+declare -A CONFIG_URLS=(
+  ["v1-inference.yaml"]="https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml"
+  ["v2-inference.yaml"]="https://raw.githubusercontent.com/Stability-AI/stablediffusion/main/configs/stable-diffusion/v2-inference.yaml"
+  ["v1-inpainting.yaml"]="https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inpainting.yaml"
+  ["v2-inpainting.yaml"]="https://raw.githubusercontent.com/Stability-AI/stablediffusion/main/configs/stable-diffusion/v2-inpainting.yaml"
+  ["sdxl.yaml"]="https://raw.githubusercontent.com/Stability-AI/generative-models/main/configs/stable-diffusion/sdxl.yaml"
+  ["sdxl-refiner.yaml"]="https://raw.githubusercontent.com/Stability-AI/generative-models/main/configs/stable-diffusion/sdxl-refiner.yaml"
+)
+
+echo "[INFO] Ensuring all model config files are present in ./configs..."
+for filename in "${!CONFIG_URLS[@]}"; do
+  TARGET="$REPO_DIR/configs/$filename"
+  if [ ! -f "$TARGET" ]; then
+    echo "[FETCH] $filename..."
+    wget -q "${CONFIG_URLS[$filename]}" -O "$TARGET" && echo "[OK] $filename downloaded"
+  else
+    echo "[SKIP] $filename already exists"
+  fi
+done
 
 # --- Launch container ---
 echo "[INFO] Launching WebUI..."
