@@ -1,7 +1,7 @@
 # Ignore local asset folders
 repositories/
 models/
-output/
+outputs/
 wildcards/
 extensions/
 config/

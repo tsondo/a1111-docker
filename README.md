@@ -11,20 +11,92 @@ A reproducible, persistent Docker setup for running [AUTOMATIC1111's Stable Diff
 
 ---
 
-## 🚀 Quick Start
+## 🐧 Setup for Linux (Ubuntu, Debian, Arch, etc.)
+
+### 1. Clone the repo
+
+Open your terminal and run:
+
+```bash
+git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
+cd ~/a1111-docker
+```
+
+This gives you access to `setup.sh`, `docker-compose.yml`, and all required files.
+
+### 2. Install Docker and Docker Compose
+
+Follow official instructions:  
+https://docs.docker.com/engine/install/
+
+Then install Docker Compose plugin:
+
+```bash
+sudo apt install docker-compose-plugin
+```
+
+Add your user to the Docker group (optional):
+
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+### 3. Run setup and launch
 
 ```bash
 bash setup.sh
-cd ~/a1111-docker
 docker compose up
 ```
 
-This will:
+Access the WebUI at [http://localhost:7860](http://localhost:7860)
 
-- Clone the repo (or update it)
-- Create persistent folders for configs, models, outputs, and extensions
-- Prepopulate empty config files if missing
-- Launch the WebUI on [localhost:7860](http://localhost:7860)
+---
+
+## 🪟 Setup for Windows (Docker Desktop + WSL2)
+
+### 1. Install Docker Desktop
+
+Download and install from:  
+https://www.docker.com/products/docker-desktop/
+
+Enable **WSL2 integration** during setup. You’ll need:
+
+- Windows 10/11 with WSL2 enabled
+- A Linux distro installed (Ubuntu recommended)
+
+### 2. Open your WSL terminal
+
+Use Windows Terminal or your preferred terminal app to open Ubuntu (or other WSL distro).
+
+### 3. Clone the repo inside WSL
+
+```bash
+git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
+cd ~/a1111-docker
+```
+
+### 4. Run setup and launch
+
+```bash
+bash setup.sh
+docker compose up
+```
+
+Access the WebUI at [http://localhost:7860](http://localhost:7860) from your Windows browser.
+
+**Important:**  
+Run all commands inside WSL — not PowerShell or CMD.  
+Your persistent folders live inside your WSL home directory.
+
+---
+
+## 🚀 What setup.sh does
+
+- Creates persistent folders for configs, models, outputs, extensions, etc.
+- Prepopulates empty config files if missing
+- Ensures correct ownership and permissions
+- Prepares everything for `docker compose up`
 
 ---
 
@@ -42,58 +114,6 @@ These folders are mounted into the container and survive restarts:
 | `logs/`           | `/workspace/stable-diffusion-webui/logs`            | Runtime logs                     |
 | `cache/`          | `/workspace/stable-diffusion-webui/cache`           | Model and UI cache               |
 | `repositories/`   | `/workspace/stable-diffusion-webui/repositories`    | Extension repos and wildcards    |
-
----
-
-## 🖥️ Platform Setup
-
-### 🪟 Docker for Windows (with integrated WSL)
-
-**Requirements:**
-
-- Docker Desktop installed with WSL integration enabled
-- WSL2 backend (Ubuntu recommended)
-
-**Steps:**
-
-1. Open your WSL terminal (e.g., Ubuntu via Windows Terminal)
-2. Run:
-   ```bash
-   bash setup.sh
-   cd ~/a1111-docker
-   docker compose up
-   ```
-3. Access the WebUI at [localhost:7860](http://localhost:7860) from your Windows browser
-
-**Notes:**
-
-- Run all commands inside WSL — not PowerShell or CMD
-- Persistent folders live inside your WSL home directory
-
----
-
-### 🐧 Docker for Linux (native or WSL)
-
-**Requirements:**
-
-- Docker and Docker Compose installed
-- NVIDIA GPU with drivers and `nvidia-container-toolkit` installed
-
-**Steps:**
-
-1. Open your terminal
-2. Run:
-   ```bash
-   bash setup.sh
-   cd ~/a1111-docker
-   docker compose up
-   ```
-3. Access the WebUI at [localhost:7860](http://localhost:7860)
-
-**Notes:**
-
-- GPU acceleration (xFormers, CUDA) is enabled by default
-- No special flags or environment variables required
 
 ---
 
@@ -127,6 +147,16 @@ docker compose up
 To rebuild the container:
 
 ```bash
+docker compose up --build
+```
+
+To rebuild from scratch (if you built before persistence was added):
+
+```bash
+docker compose down
+docker image rm stable-diffusion-webui:latest
+rm -rf models outputs configs extensions embeddings logs cache repositories
+bash setup.sh
 docker compose up --build
 ```
 

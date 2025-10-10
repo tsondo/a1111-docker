@@ -1,0 +1,29 @@
+# Ignore local runtime artifacts
+outputs/
+logs/
+cache/
+repositories/
+extensions/
+models/
+embeddings/
+
+# Ignore config files that are mounted externally
+configs/
+
+# Ignore Git metadata
+.git/
+.gitignore
+.gitattributes
+
+# Ignore setup scripts and local tooling
+setup.sh
+.env
+.env.example
+
+# Ignore OS and editor artifacts
+*.swp
+*.swo
+*.bak
+*.tmp
+*.DS_Store
+Thumbs.db
