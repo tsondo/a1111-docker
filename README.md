@@ -76,11 +76,10 @@ git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
 cd ~/a1111-docker
 ```
 
-### 4. Run setup and launch
+### 4. Run setup. It will setup everything, build, then launch via docker compose up
 
 ```bash
 bash setup.sh
-docker compose up
 ```
 
 Access the WebUI at [http://localhost:7860](http://localhost:7860) from your Windows browser.
