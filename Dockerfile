@@ -61,6 +61,11 @@ ARG USER_ID=1000
 ARG GROUP_ID=1000
 RUN mkdir -p /workspace/stable-diffusion-webui/models/hypernetworks && \
     mkdir -p /workspace/stable-diffusion-webui/cache/huggingface && \
+    mkdir -p /workspace/stable-diffusion-webui/outputs && \
+    mkdir -p /workspace/stable-diffusion-webui/extensions && \
+    mkdir -p /workspace/stable-diffusion-webui/logs && \
+    mkdir -p /workspace/stable-diffusion-webui/cache && \
+    mkdir -p /workspace/stable-diffusion-webui/repositories && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/models && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/outputs && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/extensions && \
