@@ -5,6 +5,7 @@ output/
 wildcards/
 extensions/
 config/
+configs/
 embeddings/
 logs/
 cache/
