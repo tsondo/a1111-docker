@@ -1,9 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
+if [ "$(id -u)" -eq 0 ]; then
+  echo "[ERROR] Do not run setup.sh as root. Please run as your normal user."
+  exit 1
+fi
 
 # --- Config ---
 REPO_URL="https://github.com/tsondo/a1111-docker.git"
 REPO_DIR="$HOME/a1111-docker"
+CONTAINER_UID=1000
+CONTAINER_GID=1000
 
 echo "[INFO] Starting setup..."
 
@@ -16,11 +22,7 @@ else
   git clone "$REPO_URL" "$REPO_DIR"
 fi
 
-# --- Fix ownership immediately ---
-echo "[INFO] Ensuring ownership..."
-sudo chown -R "$USER:$USER" "$REPO_DIR"
-
-# --- Persistent directories ---
+# --- Persistent directories (must match docker-compose mounts) ---
 PERSIST_DIRS=(
   configs
   models
@@ -39,9 +41,9 @@ for d in "${PERSIST_DIRS[@]}"; do
   mkdir -p "$REPO_DIR/$d"
 done
 
-echo "[INFO] Fixing ownership of persistent directories..."
+echo "[INFO] Fixing host-side ownership to match container UID:GID ($CONTAINER_UID:$CONTAINER_GID)..."
 for d in "${PERSIST_DIRS[@]}"; do
-  sudo chown -R "$USER:$USER" "$REPO_DIR/$d"
+  sudo chown -R "$CONTAINER_UID:$CONTAINER_GID" "$REPO_DIR/$d"
 done
 
 # --- Prepopulate config files if missing or empty ---
