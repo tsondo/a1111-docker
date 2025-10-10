@@ -25,10 +25,12 @@ PERSIST_DIRS=(
   models
   outputs
   configs
+  extensions
   extensions/wildcards
   embeddings
   logs
   cache
+  repositories
 )
 
 echo "[INFO] Creating persistent directories..."
