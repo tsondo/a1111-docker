@@ -1,5 +1,8 @@
 services:
   a1111:
+    build:
+      context: .
+      dockerfile: Dockerfile
     image: stable-diffusion-webui:latest
     container_name: a1111
     ports:
@@ -9,6 +12,17 @@ services:
       - ./models:/workspace/stable-diffusion-webui/models
       - ./outputs:/workspace/stable-diffusion-webui/outputs
       - ./extensions:/workspace/stable-diffusion-webui/extensions
+      - ./embeddings:/workspace/stable-diffusion-webui/embeddings
+      - ./logs:/workspace/stable-diffusion-webui/logs
+      - ./cache:/workspace/stable-diffusion-webui/cache
+      - ./repositories:/workspace/stable-diffusion-webui/repositories
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     environment:
-      - CLI_ARGS=--skip-torch-cuda-test --xformers --opt-sdp-attention --listen --port 7860 --enable-insecure-extension-access
+      - CLI_ARGS=--xformers --enable-insecure-extension-access
     restart: unless-stopped
