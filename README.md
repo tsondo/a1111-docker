@@ -68,12 +68,11 @@ It does **not** support persistence when run with Docker for Windows directly.
    cp .env.example .env
    ```
 
-3. **Create required folders and config files**
-   These folders will be mounted into the container and persist across runs:
+3. **Create required folders and config files using setup.sh**
+   Required folders will be mounted into the container and persist across runs:
    ```bash
-   mkdir -p models/Stable-diffusion outputs extensions/wildcards configs embeddings logs cache repositories
-   touch configs/config.json configs/ui-config.json
-   sudo chown -R $USER:$USER models outputs extensions configs embeddings logs cache repositories
+   chmod +x setup.sh
+   ./setup.sh
    ```
 
 4. **Edit `.env` to match your local paths**  
