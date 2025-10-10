@@ -1,18 +1,14 @@
 services:
   a1111:
-    build: .
+    image: stable-diffusion-webui:latest
     container_name: a1111
-    env_file: .env
     ports:
       - "7860:7860"
     volumes:
-      - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
-      - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
-      - ${CONFIG_DIR}/config.json:/workspace/stable-diffusion-webui/config.json
-      - ${CONFIG_DIR}/ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
-      - ${EXT_DIR}:/workspace/stable-diffusion-webui/extensions
-      - ${REPO_DIR}:/workspace/stable-diffusion-webui/repositories
+      - ./configs:/workspace/stable-diffusion-webui/configs
+      - ./models:/workspace/stable-diffusion-webui/models
+      - ./outputs:/workspace/stable-diffusion-webui/outputs
+      - ./extensions:/workspace/stable-diffusion-webui/extensions
     environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
-    runtime: nvidia
+      - CLI_ARGS=--skip-torch-cuda-test --xformers --opt-sdp-attention --listen --port 7860 --enable-insecure-extension-access
+    restart: unless-stopped

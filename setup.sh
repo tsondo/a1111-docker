@@ -22,9 +22,9 @@ sudo chown -R "$USER:$USER" "$REPO_DIR"
 
 # --- Persistent directories ---
 PERSIST_DIRS=(
+  configs
   models
   outputs
-  configs
   extensions
   extensions/wildcards
   embeddings
@@ -39,12 +39,13 @@ for d in "${PERSIST_DIRS[@]}"; do
 done
 
 # --- Prepopulate config files if missing or empty ---
-CONFIG_DIR="$REPO_DIR/configs"
 for f in config.json ui-config.json; do
-  if [ ! -s "$CONFIG_DIR/$f" ]; then
-    echo "{}" > "$CONFIG_DIR/$f"
+  TARGET="$REPO_DIR/configs/$f"
+  if [ ! -s "$TARGET" ]; then
+    echo "{}" > "$TARGET"
     echo "[INFO] Created baseline $f"
   fi
 done
+
 echo "[INFO] Setup complete."
-echo "[NEXT] cd $REPO_DIR && docker compose up -d --build"
+echo "[NEXT] cd $REPO_DIR && docker compose up"
