@@ -4,7 +4,7 @@
 ![WSL2](https://img.shields.io/badge/WSL2-supported-green)
 ![Docker](https://img.shields.io/badge/docker-ready-blue)
 ![Volumes](https://img.shields.io/badge/volumes-modular%20%26%20persistent-blueviolet)
-![Extensions](https://img.shields.io/badge/extensions-webUI%20managed-orange)
+![Extensions](https://img.shields.io/badge/extensions-user%20managed-orange)
 ![Snapshot](https://img.shields.io/badge/snapshots-not%20required-lightgrey)
 ![Tested](https://img.shields.io/badge/tested-4080%20%7C%205090-green)
 ![License](https://img.shields.io/github/license/tsondo/a1111-docker)
@@ -21,7 +21,7 @@ It’s designed for persistent use: your models, outputs, configs, and extension
 This setup is designed for **Linux Docker Engine** or **Docker running inside WSL (Ubuntu 22.04)**.  
 It does **not** support persistence when run with Docker for Windows directly.
 
-- **Windows 11 + WSL2**: Install Ubuntu 22.04 in WSL, then install Docker Engine inside WSL. Run all commands from the Ubuntu shell, and use Linux‑style paths (`/home/...`).  
+- **Windows 11 + WSL2**: Install Ubuntu 22.04 in WSL, then install Docker Engine inside WSL. Run all commands from the Ubuntu shell, and use Linux‑style paths (`/home/<your-username>/...`).  
 - **Linux**: Install Docker Engine with NVIDIA runtime.  
 - **Docker for Windows (DfW)**: The container will run, but persistence is not supported. Models, outputs, configs, and extensions will be lost when the container is rebuilt or removed.  
   ⚠️ *Note*: Work is in progress on a Docker for Windows version that will support persistence.
@@ -35,18 +35,23 @@ It does **not** support persistence when run with Docker for Windows directly.
    wsl --install -d Ubuntu-22.04
    ```
 
-2. **Install Docker Engine inside WSL**
-   Follow the official Docker instructions for Ubuntu 22.04.
+2. **Install Docker Engine inside WSL**  
+   Follow the official Docker instructions for Ubuntu 22.04:  
+   [Install Docker Engine on Ubuntu](https://docs.docker.com/engine/install/ubuntu/)
 
-3. **Verify NVIDIA runtime**
+3. **Verify NVIDIA runtime**  
+   Inside WSL, confirm your GPU is visible:
    ```bash
    nvidia-smi
    ```
 
-4. **Run Docker commands inside WSL**
+4. **Confirm Docker is working**  
+   Run:
    ```bash
-   docker compose up -d
+   docker --version
+   docker run hello-world
    ```
+   If both succeed, Docker is ready.
 
 ---
 
@@ -71,21 +76,22 @@ It does **not** support persistence when run with Docker for Windows directly.
    sudo chown -R $USER:$USER models outputs extensions configs embeddings logs cache repositories
    ```
 
-4. **Edit `.env` to match your local paths**
+4. **Edit `.env` to match your local paths**  
+   Replace `<your-username>` with your actual Linux username.
    ```bash
    nano .env
    ```
    Example:
    ```env
-   MODEL_DIR=/home/todd/a1111-docker/models
-   OUTPUT_DIR=/home/todd/a1111-docker/outputs
-   CONFIG_DIR=/home/todd/a1111-docker/configs
-   WILDCARD_DIR=/home/todd/a1111-docker/extensions/wildcards
-   EMBEDDINGS_DIR=/home/todd/a1111-docker/embeddings
-   LOGS_DIR=/home/todd/a1111-docker/logs
-   CACHE_DIR=/home/todd/a1111-docker/cache
-   EXT_DIR=/home/todd/a1111-docker/extensions
-   REPO_DIR=/home/todd/a1111-docker/repositories
+   MODEL_DIR=/home/<your-username>/a1111-docker/models
+   OUTPUT_DIR=/home/<your-username>/a1111-docker/outputs
+   CONFIG_DIR=/home/<your-username>/a1111-docker/configs
+   WILDCARD_DIR=/home/<your-username>/a1111-docker/extensions/wildcards
+   EMBEDDINGS_DIR=/home/<your-username>/a1111-docker/embeddings
+   LOGS_DIR=/home/<your-username>/a1111-docker/logs
+   CACHE_DIR=/home/<your-username>/a1111-docker/cache
+   EXT_DIR=/home/<your-username>/a1111-docker/extensions
+   REPO_DIR=/home/<your-username>/a1111-docker/repositories
    ```
 
 5. **Launch the container**
@@ -97,23 +103,35 @@ It does **not** support persistence when run with Docker for Windows directly.
 
 ## 🖼️ Usage
 
-- Open [http://localhost:7860](http://localhost:7860)  
+- Open the WebUI in your browser:  
+  [http://localhost:7860](http://localhost:7860)  
+
+  💡 You can also connect from **any device on your local network** by replacing `localhost` with your machine’s LAN IP address, e.g.:  
+  ```
+  http://192.168.1.42:7860
+  ```
+
 - Place `.safetensors` or `.ckpt` files into:
   ```
   models/Stable-diffusion/
   ```
+  Then **refresh the model list inside the WebUI** to see them appear.
+
 - Generated images will appear in:
   ```
   outputs/
   ```
+
 - Wildcards go in:
   ```
   extensions/wildcards/
   ```
+
 - Extensions live in:
   ```
   extensions/
   ```
+
 - Optional config files:
   ```
   configs/config.json
@@ -138,28 +156,29 @@ To avoid pushing large model files or outputs:
 
 ---
 
-## 📦 Pre‑installed Extensions
+## 📦 Extensions
 
-This image includes two baked-in extensions:
+This image does **not** include any baked‑in extensions.  
+All extensions are managed through the WebUI or by placing them into your persistent `extensions/` folder.  
 
-- **[ADetailer](https://github.com/Bing-su/adetailer)** – automatic face/feature detection and inpainting  
-- **[Dynamic Prompts](https://github.com/adieyal/sd-dynamic-prompts)** – wildcard-based prompt generation
-
-All other extensions are mounted from your local `extensions/` folder and can be managed via the WebUI.
+Because the `extensions/` directory is mounted as a volume, any extensions you install will persist across container rebuilds and updates.
 
 ---
 
 ## 🧪 Recommended Extensions
 
-These are tested and compatible with this build:
+These extensions are tested and compatible with this build.  
+They can be added through the **Extensions** tab within the A1111 WebUI:
 
-- **[ControlNet](https://github.com/Mikubill/sd-webui-controlnet)**
-- **[Civitai Helper](https://github.com/butaixianran/Stable-Diffusion-Webui-Civitai-Helper)**
-- **[Rembg](https://github.com/AUTOMATIC1111/stable-diffusion-webui-rembg)**
-- **[Tag Autocomplete](https://github.com/DominikDoom/a1111-sd-webui-tagcomplete)**
-- **[Prompt All‑in‑One](https://github.com/Physton/sd-webui-prompt-all-in-one)**
-- **[Image Browser](https://github.com/yfszzx/stable-diffusion-webui-images-browser)**
-- **[OpenPose Editor](https://github.com/fkunn1326/openpose-editor)**
+- **ADetailer** – automatic face/feature detection and inpainting  
+- **Dynamic Prompts** – wildcard-based prompt generation for varied outputs  
+- **ControlNet** – adds fine-grained control over image generation using pose, depth, edges, or other conditioning inputs  
+- **Civitai Helper** – streamlines downloading, updating, and managing models directly from Civitai  
+- **Rembg** – removes image backgrounds automatically for clean subject isolation  
+- **Tag Autocomplete** – suggests and autocompletes tags while typing prompts, reducing errors and speeding workflow  
+- **Prompt All‑in‑One** – provides a unified interface for managing prompt history, presets, and templates  
+- **Image Browser** – lets you browse, search, and manage generated images directly inside the WebUI  
+- **OpenPose Editor** – interactive editor for creating and adjusting human poses to guide ControlNet generations
 
 ---
 
@@ -171,7 +190,7 @@ This image is designed for:
 - **Stability**: Uses widely adopted, actively maintained extensions  
 - **Reproducibility**: Keeps the base image clean and predictable
 
-Your models, outputs, configs, and extensions are all mounted — nothing is baked into the container except the two core extensions. No snapshots required.
+Your models, outputs, configs, and extensions are all mounted — nothing is baked into the container. No snapshots required.
 
 ---
 
@@ -199,12 +218,3 @@ Anyone can use this setup by:
    docker compose up -d
    ```
 
-Tested on Windows 11 with Ubuntu 22.04 WSL, across multiple workstations with NVIDIA 4080 and 5090 GPUs.
-
----
-
-## 📄 License
-
-This project is licensed under the [MIT License](LICENSE).  
-It packages and distributes configuration files for [AUTOMATIC1111/stable-diffusion-webui](https://github.com/AUTOMATIC1111/stable-diffusion-webui), which is licensed under the AGPL-3.0.  
-See [NOTICE](NOTICE) for details.
