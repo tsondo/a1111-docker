@@ -1,3 +1,8 @@
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
+![Extension](https://img.shields.io/badge/ADetailer-enabled-success)
+![License](https://img.shields.io/github/license/tsondo/a1111-docker)
+
 # 🧠 a1111-docker
 
 A reproducible, persistent Docker setup for running [AUTOMATIC1111's Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui) with GPU acceleration, extension support, and clean config management.
@@ -50,7 +55,7 @@ These folders are mounted into the container and survive restarts:
 **Steps:**
 
 1. Open your WSL terminal (e.g., Ubuntu via Windows Terminal)
-2. Run all commands inside WSL:
+2. Run:
    ```bash
    bash setup.sh
    cd ~/a1111-docker
@@ -60,8 +65,8 @@ These folders are mounted into the container and survive restarts:
 
 **Notes:**
 
-- Do **not** run Docker commands from PowerShell or CMD — use WSL only
-- Your persistent folders live inside your WSL home directory
+- Run all commands inside WSL — not PowerShell or CMD
+- Persistent folders live inside your WSL home directory
 
 ---
 
@@ -85,8 +90,8 @@ These folders are mounted into the container and survive restarts:
 
 **Notes:**
 
-- If using WSL on Linux, follow the same steps as native Linux
 - GPU acceleration (xFormers, CUDA) is enabled by default
+- No special flags or environment variables required
 
 ---
 
