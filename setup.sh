@@ -47,5 +47,10 @@ for f in config.json ui-config.json; do
   fi
 done
 
+# --- Build and launch ---
 echo "[INFO] Setup complete."
-echo "[NEXT] cd $REPO_DIR && docker compose up"
+cd "$REPO_DIR"
+echo "[INFO] Building container (no cache)..."
+docker compose build --no-cache
+echo "[INFO] Launching WebUI..."
+docker compose up

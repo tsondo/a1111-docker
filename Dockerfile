@@ -10,8 +10,31 @@ RUN apt-get update && apt-get install -y \
 # Upgrade pip globally
 RUN python3 -m pip install --upgrade pip
 
-# Clone AUTOMATIC1111 repo
-RUN git clone https://github.com/AUTOMATIC1111/stable-diffusion-webui /workspace/stable-diffusion-webui
+# Clone AUTOMATIC1111 repo with retry and shallow depth
+RUN set -eux; \
+  clone_repo() { \
+    local url="$1"; \
+    local target="$2"; \
+    local name="$3"; \
+    local attempts=0; \
+    until [ "$attempts" -ge 3 ]; do \
+      echo "🌀 Cloning $name (attempt $((attempts+1)) of 3)..."; \
+      git clone --depth 1 "$url" "$target" && break; \
+      echo "❌ Clone failed for $name. Retrying in 30 seconds..."; \
+      attempts=$((attempts+1)); \
+      sleep 30; \
+    done; \
+    if [ ! -d "$target" ]; then \
+      echo "🚨 Failed to clone $name after 3 attempts. Aborting build."; \
+      exit 1; \
+    fi; \
+  }; \
+  clone_repo https://github.com/AUTOMATIC1111/stable-diffusion-webui.git /workspace/stable-diffusion-webui "WebUI"; \
+  clone_repo https://github.com/crowsonkb/k-diffusion.git /workspace/stable-diffusion-webui/repositories/k-diffusion "k-diffusion"; \
+  clone_repo https://github.com/CompVis/taming-transformers.git /workspace/stable-diffusion-webui/repositories/taming-transformers "taming-transformers"; \
+  clone_repo https://github.com/Stability-AI/stablediffusion.git /workspace/stable-diffusion-webui/repositories/stablediffusion "stablediffusion"; \
+  clone_repo https://github.com/openai/CLIP.git /workspace/stable-diffusion-webui/repositories/CLIP "CLIP"
+
 WORKDIR /workspace/stable-diffusion-webui
 
 # Create virtual environment and install dependencies
