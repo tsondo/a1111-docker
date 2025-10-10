@@ -18,29 +18,32 @@ It’s designed for persistent use: your models, outputs, configs, and extension
 
 ## 📦 Requirements
 
-- **Windows 11**: Docker Desktop with WSL2 backend and Ubuntu 22.04 installed  
-- **Linux**: Docker Engine with NVIDIA runtime
+This setup is designed for **Linux Docker Engine** or **Docker running inside WSL (Ubuntu 22.04)**.  
+It does **not** support persistence when run with Docker for Windows directly.
+
+- **Windows 11 + WSL2**: Install Ubuntu 22.04 in WSL, then install Docker Engine inside WSL. Run all commands from the Ubuntu shell, and use Linux‑style paths (`/home/...`).  
+- **Linux**: Install Docker Engine with NVIDIA runtime.  
+- **Docker for Windows (DfW)**: The container will run, but persistence is not supported. Models, outputs, configs, and extensions will be lost when the container is rebuilt or removed.  
+  ⚠️ *Note*: Work is in progress on a Docker for Windows version that will support persistence.
 
 ---
 
-## 🖥️ Windows 11 Setup
+## 🖥️ Windows 11 Setup (WSL2 + Docker Engine)
 
 1. **Install WSL2 with Ubuntu 22.04**
    ```powershell
    wsl --install -d Ubuntu-22.04
    ```
 
-2. **Install Docker Desktop**  
-   Download from [docker.com](https://www.docker.com/products/docker-desktop) and complete setup.
+2. **Install Docker Engine inside WSL**
+   Follow the official Docker instructions for Ubuntu 22.04.
 
-3. **Enable WSL Integration**  
-   Docker Desktop → Settings → Resources → WSL Integration  
-   Enable for your Ubuntu distro (`Ubuntu-22.04`)
+3. **Verify NVIDIA runtime**
+   ```bash
+   nvidia-smi
+   ```
 
-4. **Open your WSL shell**  
-   Launch Ubuntu from the Start Menu. You’ll land in `/home/<your-username>`
-
-5. **Run Docker commands inside WSL**
+4. **Run Docker commands inside WSL**
    ```bash
    docker compose up -d
    ```
@@ -94,7 +97,7 @@ It’s designed for persistent use: your models, outputs, configs, and extension
 
 ## 🖼️ Usage
 
-- Open [http://localhost:7860](http://localhost:7860)
+- Open [http://localhost:7860](http://localhost:7860)  
 - Place `.safetensors` or `.ckpt` files into:
   ```
   models/Stable-diffusion/
@@ -177,7 +180,9 @@ Your models, outputs, configs, and extensions are all mounted — nothing is bak
 - **Permission denied**: Ensure your folders exist and are writable  
 - **Models not detected**: Check they’re inside `Stable-diffusion/`  
 - **Slow I/O**: Avoid `/mnt/c/...` paths — use native WSL folders for speed  
-- **Accidental large push**: See “Clean Push Instructions” above
+- **Accidental large push**: See “Clean Push Instructions” above  
+- **Using Docker for Windows?**  
+  The container will run, but persistence is not supported. Work is in progress on a DfW version that will support persistence.
 
 ---
 
