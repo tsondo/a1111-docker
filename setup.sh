@@ -38,14 +38,13 @@ for d in "${PERSIST_DIRS[@]}"; do
   mkdir -p "$REPO_DIR/$d"
 done
 
-# --- Prepopulate config files if missing ---
+# --- Prepopulate config files if missing or empty ---
 CONFIG_DIR="$REPO_DIR/configs"
 for f in config.json ui-config.json; do
-  if [ ! -f "$CONFIG_DIR/$f" ]; then
+  if [ ! -s "$CONFIG_DIR/$f" ]; then
     echo "{}" > "$CONFIG_DIR/$f"
-    echo "[INFO] Created empty $f"
+    echo "[INFO] Created baseline $f"
   fi
 done
-
 echo "[INFO] Setup complete."
 echo "[NEXT] cd $REPO_DIR && docker compose up -d --build"
