@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
+
+# --- Safety check ---
 if [ "$(id -u)" -eq 0 ]; then
   echo "[ERROR] Do not run setup.sh as root. Please run as your normal user."
   exit 1
@@ -21,6 +23,12 @@ else
   echo "[INFO] Cloning fresh repo..."
   git clone "$REPO_URL" "$REPO_DIR"
 fi
+
+cd "$REPO_DIR"
+
+# --- Build container first ---
+echo "[INFO] Building container image..."
+docker compose build --no-cache
 
 # --- Persistent directories (must match docker-compose mounts) ---
 PERSIST_DIRS=(
@@ -46,7 +54,7 @@ for d in "${PERSIST_DIRS[@]}"; do
   sudo chown -R "$CONTAINER_UID:$CONTAINER_GID" "$REPO_DIR/$d"
 done
 
-# --- Prepopulate config files if missing or empty ---
+# --- Prepopulate config files if missing ---
 for f in config.json ui-config.json; do
   TARGET="$REPO_DIR/configs/$f"
   if [ ! -s "$TARGET" ]; then
@@ -55,10 +63,14 @@ for f in config.json ui-config.json; do
   fi
 done
 
-# --- Build and launch ---
-echo "[INFO] Setup complete."
-cd "$REPO_DIR"
-echo "[INFO] Building container (no cache)..."
-docker compose build --no-cache
+# --- Ensure model config is present ---
+CONFIG_PATH="$REPO_DIR/configs/v1-inference.yaml"
+if [ ! -f "$CONFIG_PATH" ]; then
+  echo "[INFO] Fetching v1-inference.yaml for SD 1.5..."
+  wget https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml \
+       -O "$CONFIG_PATH"
+fi
+
+# --- Launch container ---
 echo "[INFO] Launching WebUI..."
 docker compose up
