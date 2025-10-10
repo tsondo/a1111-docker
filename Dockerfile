@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
 # Upgrade pip globally
 RUN python3 -m pip install --upgrade pip
 
-# Clone AUTOMATIC1111 repo with retry and shallow depth
+# Clone AUTOMATIC1111 and sub-repos with retry and shallow depth
 RUN set -eux; \
   clone_repo() { \
     local url="$1"; \
@@ -33,17 +33,17 @@ RUN set -eux; \
   clone_repo https://github.com/crowsonkb/k-diffusion.git /workspace/stable-diffusion-webui/repositories/k-diffusion "k-diffusion"; \
   clone_repo https://github.com/CompVis/taming-transformers.git /workspace/stable-diffusion-webui/repositories/taming-transformers "taming-transformers"; \
   clone_repo https://github.com/Stability-AI/stablediffusion.git /workspace/stable-diffusion-webui/repositories/stablediffusion "stablediffusion"; \
-  clone_repo https://github.com/openai/CLIP.git /workspace/stable-diffusion-webui/repositories/CLIP "CLIP"
+  clone_repo https://github.com/openai/CLIP.git /workspace/stable-diffusion-webui/repositories/CLIP "CLIP"; \
+  clone_repo https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets.git /workspace/stable-diffusion-webui/repositories/stable-diffusion-webui-assets "webui-assets"
 
+# Set working directory
 WORKDIR /workspace/stable-diffusion-webui
 
 # Create virtual environment and install dependencies
 RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
     /workspace/stable-diffusion-webui/venv/bin/pip install --upgrade pip && \
-    # Install nightly Torch and torchvision first
     /workspace/stable-diffusion-webui/venv/bin/pip install --pre torch torchvision \
         --index-url https://download.pytorch.org/whl/nightly/cu128 && \
-    # Install Torch-adjacent libraries before xformers
     /workspace/stable-diffusion-webui/venv/bin/pip install \
         open-clip-torch==2.20.0 \
         pytorch-lightning==1.9.4 \
@@ -53,21 +53,25 @@ RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
         torchsde==0.2.6 \
         gradio==3.41.2 \
         gradio_client==0.5.0 && \
-    # Install xformers last to avoid ABI mismatches
     /workspace/stable-diffusion-webui/venv/bin/pip install --pre xformers \
         --index-url https://download.pytorch.org/whl/nightly/cu128
 
-# Ensure hypernetworks directory exists and is owned by the mapped user
-RUN mkdir -p /workspace/stable-diffusion-webui/models/hypernetworks \
-    && chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/models
+# Ensure runtime directories are writable by the mapped user
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+RUN mkdir -p /workspace/stable-diffusion-webui/models/hypernetworks && \
+    chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/models && \
+    chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/outputs && \
+    chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/extensions && \
+    chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/logs && \
+    chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/cache && \
+    chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/repositories
 
 # Environment overrides for A1111
 ENV TORCH_COMMAND="echo 'Skipping torch install, already provided in venv'"
 ENV COMMANDLINE_ARGS="--skip-torch-cuda-test --xformers --opt-sdp-attention --listen --port 7860 --enable-insecure-extension-access"
 
 # Create non-root user with host-matching UID/GID for volume mounts
-ARG USER_ID=1000
-ARG GROUP_ID=1000
 RUN groupadd -g ${GROUP_ID} webui && \
     useradd -m -u ${USER_ID} -g ${GROUP_ID} webui && \
     chown -R webui:webui /workspace

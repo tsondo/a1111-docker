@@ -38,6 +38,11 @@ for d in "${PERSIST_DIRS[@]}"; do
   mkdir -p "$REPO_DIR/$d"
 done
 
+echo "[INFO] Fixing ownership of persistent directories..."
+for d in "${PERSIST_DIRS[@]}"; do
+  sudo chown -R "$USER:$USER" "$REPO_DIR/$d"
+done
+
 # --- Prepopulate config files if missing or empty ---
 for f in config.json ui-config.json; do
   TARGET="$REPO_DIR/configs/$f"
