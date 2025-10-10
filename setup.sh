@@ -1,3 +1,49 @@
-#!/bin/bash
-mkdir -p models/Stable-diffusion output wildcards extensions config embeddings logs cache
-echo "✅ All folders created. Now edit .env and run: docker compose up -d"
+#!/usr/bin/env bash
+set -euo pipefail
+
+# --- Config ---
+REPO_URL="https://github.com/tsondo/a1111-docker.git"
+REPO_DIR="$HOME/a1111-docker"
+
+echo "[INFO] Starting setup..."
+
+# --- Clone or update repo ---
+if [ -d "$REPO_DIR/.git" ]; then
+  echo "[INFO] Repo already exists, pulling latest..."
+  git -C "$REPO_DIR" pull --rebase
+else
+  echo "[INFO] Cloning fresh repo..."
+  git clone "$REPO_URL" "$REPO_DIR"
+fi
+
+# --- Fix ownership immediately ---
+echo "[INFO] Ensuring ownership..."
+sudo chown -R "$USER:$USER" "$REPO_DIR"
+
+# --- Persistent directories ---
+PERSIST_DIRS=(
+  models
+  outputs
+  configs
+  extensions/wildcards
+  embeddings
+  logs
+  cache
+)
+
+echo "[INFO] Creating persistent directories..."
+for d in "${PERSIST_DIRS[@]}"; do
+  mkdir -p "$REPO_DIR/$d"
+done
+
+# --- Prepopulate config files if missing ---
+CONFIG_DIR="$REPO_DIR/configs"
+for f in config.json ui-config.json; do
+  if [ ! -f "$CONFIG_DIR/$f" ]; then
+    echo "{}" > "$CONFIG_DIR/$f"
+    echo "[INFO] Created empty $f"
+  fi
+done
+
+echo "[INFO] Setup complete."
+echo "[NEXT] cd $REPO_DIR && docker compose up -d --build"
