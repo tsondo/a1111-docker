@@ -28,7 +28,7 @@ cd "$REPO_DIR"
 
 # --- Build container first ---
 echo "[INFO] Building container image..."
-docker compose build --no-cache
+docker compose build
 
 # --- Persistent directories (must match docker-compose mounts) ---
 PERSIST_DIRS=(
