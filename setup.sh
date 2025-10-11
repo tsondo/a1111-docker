@@ -25,10 +25,15 @@ fi
 # --- Clone or update repo ---
 if [ -d "$REPO_DIR/.git" ]; then
   echo "[INFO] Repo already exists, pulling latest..."
+
+  # Save current hash of setup.sh
+  OLD_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
+
   git -C "$REPO_DIR" pull --rebase
 
-  # --- Detect if setup.sh was updated ---
-  if git diff --name-only HEAD@{1} | grep -q setup.sh; then
+  # Compare hash after pull
+  NEW_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
+  if [ "$OLD_HASH" != "$NEW_HASH" ]; then
     echo "[INFO] setup.sh was updated during pull. Please re-run it to apply changes."
     exit 0
   fi
