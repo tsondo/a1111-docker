@@ -124,7 +124,7 @@ Any extensions installed via the WebUI (e.g., ADetailer) will persist across res
 
 ## 📦 Preloading Models (Optional)
 
-To skip model downloads on first launch:
+To pre-load model downloads before first launch:
 
 ```bash
 mkdir -p ~/a1111-docker/models/Stable-diffusion
@@ -133,30 +133,48 @@ wget -O ~/a1111-docker/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors \
 ```
 
 ---
+## 🔁 Daily Usage: Bringing the Container Up and Down
 
-## 🧼 Teardown and Rebuild
-
-To stop and restart cleanly:
-
-```bash
-docker compose down
-docker compose up
-```
-
-To rebuild the container:
+To start the WebUI each day, **always run `setup.sh`** — not just `docker compose up`. This ensures all folders, configs, and updates are in place before launch.
 
 ```bash
-docker compose up --build
-```
-
-To rebuild from scratch (if you built before persistence was added):
-
-```bash
-docker compose down
-docker image rm stable-diffusion-webui:latest
-rm -rf models outputs configs extensions embeddings logs cache repositories
 bash setup.sh
-docker compose up --build
 ```
+
+This will:
+
+- Pull the latest repo updates
+- Rebuild the container only if needed
+- Verify all persistent folders and config files
+- Launch the WebUI container
+
+Access the interface at [http://localhost:7860](http://localhost:7860)
+
+---
+
+### 🧪 Optional: Force Rebuild with `--no-cache`
+
+If you're troubleshooting or testing Dockerfile changes, you can force a full rebuild:
+
+```bash
+bash setup.sh --no-cache
+```
+
+This bypasses Docker’s layer cache and rebuilds the container from scratch. Use this if:
+
+- You modified the Dockerfile or build context
+- You suspect stale layers or broken dependencies
+- You want to test a clean build environment
+
+---
+
+### 🛑 To Stop the Container
+
+```bash
+docker compose down
+```
+
+This stops the running container but preserves all persistent data.
+
 
 ---
