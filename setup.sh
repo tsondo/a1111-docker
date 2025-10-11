@@ -26,6 +26,12 @@ fi
 if [ -d "$REPO_DIR/.git" ]; then
   echo "[INFO] Repo already exists, pulling latest..."
   git -C "$REPO_DIR" pull --rebase
+
+  # --- Detect if setup.sh was updated ---
+  if git diff --name-only HEAD@{1} | grep -q setup.sh; then
+    echo "[INFO] setup.sh was updated during pull. Please re-run it to apply changes."
+    exit 0
+  fi
 else
   echo "[INFO] Cloning fresh repo..."
   git clone "$REPO_URL" "$REPO_DIR"
