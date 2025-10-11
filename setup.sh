@@ -73,11 +73,11 @@ for f in config.json ui-config.json; do
   fi
 done
 
-# --- Ensure default model config exists ---
-MODEL_CONFIG="$REPO_DIR/models/Stable-diffusion/v1-inference.yaml"
-if [ ! -f "$MODEL_CONFIG" ]; then
-  echo "[INFO] Downloading v1-inference.yaml..."
-  curl -sSL -o "$MODEL_CONFIG" https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml
+# --- Ensure default model config exists in expected path ---
+CONFIG_PATH="$REPO_DIR/configs/v1-inference.yaml"
+if [ ! -f "$CONFIG_PATH" ]; then
+  echo "[INFO] Downloading v1-inference.yaml to configs/"
+  curl -sSL -o "$CONFIG_PATH" https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml
 fi
 
 # --- Launch container ---
