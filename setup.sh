@@ -68,4 +68,9 @@ done
 for f in config.json ui-config.json; do
   TARGET="$REPO_DIR/configs/$f"
   if [ ! -s "$TARGET" ]; then
-    echo "{}
+    echo "{}" > "$TARGET"
+    echo "[INFO] Created empty $f in configs/"
+  fi
+done
+
+echo "[INFO] Setup complete. You can now run: docker compose up"
