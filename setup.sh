@@ -73,4 +73,6 @@ for f in config.json ui-config.json; do
   fi
 done
 
-echo "[INFO] Setup complete. You can now run: docker compose up"
+# --- Launch container ---
+echo "[INFO] Launching container with docker compose up..."
+docker compose up
