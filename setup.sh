@@ -76,11 +76,11 @@ for d in "${PERSIST_DIRS[@]}"; do
 done
 
 # --- Prepopulate UI config files if missing ---
-for f in config.json ui-config.json; do
-  TARGET="$REPO_DIR/configs/$f"
+for f in config.json ui-config.json styles.csv; do
+  TARGET="$REPO_DIR/$f"
   if [ ! -s "$TARGET" ]; then
     echo "{}" > "$TARGET"
-    echo "[INFO] Created empty $f in configs/"
+    echo "[INFO] Created empty $f in repo root"
   fi
 done
 

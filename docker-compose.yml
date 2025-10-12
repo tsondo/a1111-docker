@@ -8,6 +8,9 @@ services:
     ports:
       - "7860:7860"
     volumes:
+      - ./config.json:/workspace/stable-diffusion-webui/config.json
+      - ./ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
+      - ./styles.csv:/workspace/stable-diffusion-webui/styles.csv
       - ./configs:/workspace/stable-diffusion-webui/configs
       - ./models:/workspace/stable-diffusion-webui/models
       - ./outputs:/workspace/stable-diffusion-webui/outputs
