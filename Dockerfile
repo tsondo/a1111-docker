@@ -4,7 +4,8 @@ FROM nvidia/cuda:12.8.0-runtime-ubuntu22.04
 # System dependencies: Python, git, runtime libs
 RUN apt-get update && apt-get install -y \
     python3 python3-pip python3-venv git \
-    libgl1 libglib2.0-0 ffmpeg && \
+    libgl1 libglib2.0-0 ffmpeg \
+    libgoogle-perftools-dev && \
     rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip globally
