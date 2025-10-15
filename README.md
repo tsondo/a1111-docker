@@ -14,6 +14,9 @@ A reproducible, persistent Docker setup for running [AUTOMATIC1111's Stable Diff
 📖 **New to WSL/Docker on Windows?**  
 See the [HOWTO guide](HOWTO.md) for step‑by‑step instructions on installing Docker inside WSL (Ubuntu 22.04) before using this project.
 
+📘 **New to Docker or AUTOMATIC1111 in general?**  
+Check out the [GETTING_STARTED.md](GETTING_STARTED.md) guide for a plain‑language introduction: what Docker is, what A1111 does, what’s persistent vs. ephemeral in this build, and how to add your first models.
+
 ---
 
 ## 🐧 Setup for Linux (Ubuntu, Debian, Arch, etc. Assumes Docker with Compose is already installed)
@@ -22,10 +25,8 @@ See the [HOWTO guide](HOWTO.md) for step‑by‑step instructions on installing 
 
 Open your terminal and run:
 
-```bash
 git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
 cd ~/a1111-docker
-```
 
 This gives you access to `setup.sh`, `docker-compose.yml`, and all required files.
 
@@ -36,25 +37,19 @@ https://docs.docker.com/engine/install/
 
 Then install Docker Compose plugin:
 
-```bash
 sudo apt install docker-compose-plugin
-```
 
 Add your user to the Docker group (optional):
 
-```bash
 sudo usermod -aG docker $USER
 newgrp docker
-```
 
 ### 3. Run setup and launch
 
-```bash
 bash setup.sh
 docker compose up
-```
 
-Access the WebUI at [http://localhost:7860](http://localhost:7860)
+Access the WebUI at http://localhost:7860
 
 ---
 
@@ -76,18 +71,14 @@ Use Windows Terminal or your preferred terminal app to open Ubuntu (or other WSL
 
 ### 3. Clone the repo inside WSL
 
-```bash
 git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
 cd ~/a1111-docker
-```
 
 ### 4. Run setup. It will setup everything, build, then launch via docker compose up
 
-```bash
 bash setup.sh
-```
 
-Access the WebUI at [http://localhost:7860](http://localhost:7860) from your Windows browser.
+Access the WebUI at http://localhost:7860 from your Windows browser.
 
 **Important:**  
 Run all commands inside WSL — not PowerShell or CMD.  
@@ -131,20 +122,17 @@ Any extensions installed via the WebUI (e.g., ADetailer) will persist across res
 
 To pre-load model downloads before first launch:
 
-```bash
 mkdir -p ~/a1111-docker/models/Stable-diffusion
 wget -O ~/a1111-docker/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors \
   https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors
-```
 
 ---
+
 ## 🔁 Daily Usage: Bringing the Container Up and Down
 
 To start the WebUI each day, **always run `setup.sh`** — not just `docker compose up`. This ensures all folders, configs, and updates are in place before launch.
 
-```bash
 bash setup.sh
-```
 
 This will:
 
@@ -153,7 +141,7 @@ This will:
 - Verify all persistent folders and config files
 - Launch the WebUI container
 
-Access the interface at [http://localhost:7860](http://localhost:7860)
+Access the interface at http://localhost:7860
 
 ---
 
@@ -161,9 +149,7 @@ Access the interface at [http://localhost:7860](http://localhost:7860)
 
 If you're troubleshooting or testing Dockerfile changes, you can force a full rebuild:
 
-```bash
 bash setup.sh --no-cache
-```
 
 This bypasses Docker’s layer cache and rebuilds the container from scratch. Use this if:
 
@@ -175,11 +161,8 @@ This bypasses Docker’s layer cache and rebuilds the container from scratch. Us
 
 ### 🛑 To Stop the Container
 
-```bash
 docker compose down
-```
 
 This stops the running container but preserves all persistent data.
-
 
 ---
