@@ -24,18 +24,21 @@ fi
 
 # --- Clone or update repo ---
 if [ -d "$REPO_DIR/.git" ]; then
-  echo "[INFO] Repo already exists, pulling latest..."
+  echo "[INFO] Repo already exists..."
 
-  # Save current hash of setup.sh
-  OLD_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
+  current_branch=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
 
-  git -C "$REPO_DIR" pull --rebase
-
-  # Compare hash after pull
-  NEW_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
-  if [ "$OLD_HASH" != "$NEW_HASH" ]; then
-    echo "[INFO] setup.sh was updated during pull. Please re-run it to apply changes."
-    exit 0
+  if [ "$current_branch" = "main" ]; then
+    echo "[INFO] On main branch, pulling latest..."
+    OLD_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
+    git -C "$REPO_DIR" pull --rebase
+    NEW_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
+    if [ "$OLD_HASH" != "$NEW_HASH" ]; then
+      echo "[INFO] setup.sh was updated during pull. Please re-run it to apply changes."
+      exit 0
+    fi
+  else
+    echo "[INFO] On branch '$current_branch', skipping git pull to preserve local changes."
   fi
 else
   echo "[INFO] Cloning fresh repo..."
