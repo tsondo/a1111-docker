@@ -15,6 +15,7 @@ cache/
 config.json
 styles.csv
 ui-config.json
+
 # Ignore Python and Docker artifacts
 *.log
 __pycache__/
@@ -24,3 +25,13 @@ __pycache__/
 *.db
 *.sqlite3
 *.egg-info/
+.venv/
+venv/
+
+# Ignore editor/IDE settings
+.vscode/
+.idea/
+
+# Ignore OS junk
+.DS_Store
+Thumbs.db
