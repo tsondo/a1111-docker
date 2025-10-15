@@ -12,7 +12,9 @@ cache/
 
 # Ignore local environment config
 .env
-
+config.json
+styles.csv
+ui-config.json
 # Ignore Python and Docker artifacts
 *.log
 __pycache__/
