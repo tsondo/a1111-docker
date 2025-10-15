@@ -11,7 +11,12 @@ A reproducible, persistent Docker setup for running [AUTOMATIC1111's Stable Diff
 
 ---
 
-## 🐧 Setup for Linux (Ubuntu, Debian, Arch, etc.)
+📖 **New to WSL/Docker on Windows?**  
+See the [HOWTO guide](HOWTO.md) for step‑by‑step instructions on installing Docker inside WSL (Ubuntu 22.04) before using this project.
+
+---
+
+## 🐧 Setup for Linux (Ubuntu, Debian, Arch, etc. Assumes Docker with Compose is already installed)
 
 ### 1. Clone the repo
 
