@@ -29,6 +29,6 @@ services:
               count: all
               capabilities: [gpu]
     environment:
-      - CLI_ARGS=--xformers --enable-insecure-extension-access
+      - CLI_ARGS=--xformers --enable-insecure-extension-access --listen --port 7860
       - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so
     restart: unless-stopped
