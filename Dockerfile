@@ -43,8 +43,8 @@ WORKDIR /workspace/stable-diffusion-webui
 # Create virtual environment and install dependencies
 RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
     /workspace/stable-diffusion-webui/venv/bin/pip install --upgrade pip && \
-    /workspace/stable-diffusion-webui/venv/bin/pip install --pre torch torchvision \
-        --index-url https://download.pytorch.org/whl/nightly/cu128 && \
+    /workspace/stable-diffusion-webui/venv/bin/pip install torch torchvision torchaudio \
+        --index-url https://download.pytorch.org/whl/cu128 && \
     /workspace/stable-diffusion-webui/venv/bin/pip install \
         open-clip-torch==2.20.0 \
         pytorch-lightning==1.9.4 \
@@ -53,9 +53,8 @@ RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
         torchmetrics==1.8.2 \
         torchsde==0.2.6 \
         gradio==3.41.2 \
-        gradio_client==0.5.0 && \
-    /workspace/stable-diffusion-webui/venv/bin/pip install --pre xformers \
-        --index-url https://download.pytorch.org/whl/nightly/cu128
+        gradio_client==0.5.0 \
+        xformers
 
 # Ensure runtime directories are writable by the mapped user
 ARG USER_ID=1000
