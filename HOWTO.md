@@ -14,7 +14,7 @@ If you already have WSL installed, make sure Ubuntu‑22.04 is set to version 2:
 
     wsl --set-version Ubuntu-22.04 2
 
-Then launch **Ubuntu 22.04** from the Start menu and create your Linux username and password.  
+Then launch **Ubuntu 22.04** from the Start menu and create your Linux username and password.
 👉 This password is important — you’ll use it whenever `sudo` asks for authentication.
 
 ---
@@ -68,8 +68,40 @@ Both should print version numbers.
 
 ## 5. Notes About Password Prompts
 
-- If the container setup or Dockerfile runs commands with `sudo`, you may be asked for your **Ubuntu user password**.  
-- This is the same password you created the very first time you launched Ubuntu in WSL.  
+- If the container setup or Dockerfile runs commands with `sudo`, you may be asked for your **Ubuntu user password**.
+- This is the same password you created the very first time you launched Ubuntu in WSL.
+
+---
+
+## 6. Enable NVIDIA GPU Support in WSL
+
+To use GPU acceleration inside Docker containers, you need the NVIDIA runtime and drivers set up in WSL:
+
+1. **Install the NVIDIA GPU driver for WSL on Windows**  
+   Download and install the latest [NVIDIA WSL driver](https://developer.nvidia.com/cuda/wsl) from NVIDIA’s site. This enables GPU passthrough into WSL.
+
+2. **Install the NVIDIA Container Toolkit inside Ubuntu**  
+   In your WSL terminal:
+
+       distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+       curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+       curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list \
+         | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+
+       sudo apt update
+       sudo apt install -y nvidia-docker2
+
+3. **Restart the Docker daemon**  
+   This ensures the NVIDIA runtime is available:
+
+       sudo systemctl restart docker
+
+4. **Test GPU access**  
+   Run:
+
+       docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi
+
+   You should see your GPU listed.
 
 ---
 
