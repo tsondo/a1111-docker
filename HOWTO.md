@@ -14,7 +14,7 @@ If you already have WSL installed, make sure Ubuntu‑22.04 is set to version 2:
 
     wsl --set-version Ubuntu-22.04 2
 
-Then launch **Ubuntu 22.04** from the Start menu and create your Linux username and password.
+Then launch **Ubuntu 22.04** from the Start menu and create your Linux username and password.  
 👉 This password is important — you’ll use it whenever `sudo` asks for authentication.
 
 ---
@@ -91,12 +91,19 @@ To use GPU acceleration inside Docker containers, you need the NVIDIA runtime an
        sudo apt update
        sudo apt install -y nvidia-docker2
 
-3. **Restart the Docker daemon**  
-   This ensures the NVIDIA runtime is available:
+3. **Update to the latest NVIDIA Container Toolkit (important for CUDA 12.8+)**  
+   Recent NVIDIA drivers (555.xx and newer) require an updated toolkit to expose new libraries (`libnvdxgdmal.so.1`) into containers.  
+   Run:
+
+       sudo apt install -y nvidia-container-toolkit
+
+   This ensures CUDA initialization works correctly inside WSL.
+
+4. **Restart the Docker daemon**
 
        sudo systemctl restart docker
 
-4. **Test GPU access**  
+5. **Test GPU access**  
    Run:
 
        docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi
