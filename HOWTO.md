@@ -80,30 +80,26 @@ To use GPU acceleration inside Docker containers, you need the NVIDIA runtime an
 1. **Install the NVIDIA GPU driver for WSL on Windows**  
    Download and install the latest [NVIDIA WSL driver](https://developer.nvidia.com/cuda/wsl) from NVIDIA’s site. This enables GPU passthrough into WSL.
 
-2. **Install the NVIDIA Container Toolkit inside Ubuntu**  
+2. **Install the NVIDIA Container Toolkit inside Ubuntu (correct repo for Ubuntu 22.04)**  
    In your WSL terminal:
 
        distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-       curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
-       curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list \
-         | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+       curl -s -L https://nvidia.github.io/libnvidia-container/gpgkey \
+         | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit.gpg
+
+       curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list \
+         | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 
        sudo apt update
-       sudo apt install -y nvidia-docker2
-
-3. **Update to the latest NVIDIA Container Toolkit (important for CUDA 12.8+)**  
-   Recent NVIDIA drivers (555.xx and newer) require an updated toolkit to expose new libraries (`libnvdxgdmal.so.1`) into containers.  
-   Run:
-
        sudo apt install -y nvidia-container-toolkit
 
-   This ensures CUDA initialization works correctly inside WSL.
+   > ✅ This ensures you get version 1.17.x or newer, which is required for modern drivers.
 
-4. **Restart the Docker daemon**
+3. **Restart the Docker daemon**
 
        sudo systemctl restart docker
 
-5. **Test GPU access**  
+4. **Test GPU access**  
    Run:
 
        docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi
