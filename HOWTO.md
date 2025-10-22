@@ -8,103 +8,134 @@ Follow these steps to set up Docker inside WSL. Once complete, your containers w
 
 Open **PowerShell as Administrator** and run:
 
-    wsl --install -d Ubuntu-22.04
+```powershell
+wsl --install -d Ubuntu-22.04
+```
 
-If you already have WSL installed, make sure Ubuntu‑22.04 is set to version 2:
+If WSL is already installed, ensure Ubuntu‑22.04 is set to version 2:
 
-    wsl --set-version Ubuntu-22.04 2
+```powershell
+wsl --set-version Ubuntu-22.04 2
+```
 
-Then launch **Ubuntu 22.04** from the Start menu and create your Linux username and password.  
-👉 This password is important — you’ll use it whenever `sudo` asks for authentication.
+Then launch **Ubuntu 22.04** from the Start menu and create your Linux username and password.
+
+> 📝 This password is important — you’ll use it whenever `sudo` asks for authentication.
 
 ---
 
 ## 2. Install Docker Inside Ubuntu
 
-In your Ubuntu terminal:
+Open your Ubuntu terminal and run:
 
-    # Update packages
-    sudo apt update && sudo apt upgrade -y
+```bash
+# Update packages
+sudo apt update && sudo apt upgrade -y
 
-    # Install dependencies
-    sudo apt install ca-certificates curl gnupg lsb-release -y
+# Install dependencies
+sudo apt install -y ca-certificates curl gnupg lsb-release
 
-    # Add Docker’s official GPG key
-    sudo mkdir -p /etc/apt/keyrings
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
-      | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+# Add Docker’s official GPG key
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-    # Add Docker repository
-    echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-      https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
-      | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+# Add Docker repository
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+  | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-    # Install Docker Engine and Compose plugin
-    sudo apt update
-    sudo apt install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+# Install Docker Engine and Compose plugin
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
 
 ---
 
 ## 3. Add Your User to the Docker Group
 
-By default, Docker requires `sudo`. To run it as your normal user:
+To run Docker without `sudo`:
 
-    sudo usermod -aG docker $USER
-    newgrp docker
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
 
-Now you can run `docker ps` without `sudo`.
+Now you can run Docker commands like `docker ps` without `sudo`.
 
 ---
 
 ## 4. Verify Installation
 
-    docker --version
-    docker compose version
+```bash
+docker --version
+docker compose version
+```
 
-Both should print version numbers.
+Both commands should print version numbers.
 
 ---
 
 ## 5. Notes About Password Prompts
 
-- If the container setup or Dockerfile runs commands with `sudo`, you may be asked for your **Ubuntu user password**.
-- This is the same password you created the very first time you launched Ubuntu in WSL.
+- If your container setup or Dockerfile uses `sudo`, you’ll be prompted for your **Ubuntu user password**.
+- This is the same password you created when launching Ubuntu for the first time.
 
 ---
 
 ## 6. Enable NVIDIA GPU Support in WSL
 
-To use GPU acceleration inside Docker containers, you need the NVIDIA runtime and drivers set up in WSL:
+To use GPU acceleration inside Docker containers:
 
-1. **Install the NVIDIA GPU driver for WSL on Windows**  
-   Download and install the latest [NVIDIA WSL driver](https://developer.nvidia.com/cuda/wsl) from NVIDIA’s site. This enables GPU passthrough into WSL.
+### 1. Install the NVIDIA GPU Driver for WSL on Windows
 
-2. **Install the NVIDIA Container Toolkit inside Ubuntu (correct repo for Ubuntu 22.04)**  
-   In your WSL terminal:
+Download and install the latest [NVIDIA WSL driver](https://developer.nvidia.com/cuda/wsl). This enables GPU passthrough into WSL.
 
-       distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
-       curl -s -L https://nvidia.github.io/libnvidia-container/gpgkey \
-         | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit.gpg
+### 2. Install the NVIDIA Container Toolkit in Ubuntu
 
-       curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list \
-         | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+Run the following in your Ubuntu terminal:
 
-       sudo apt update
-       sudo apt install -y nvidia-container-toolkit
+```bash
+# Detect your distribution
+distribution=$(. /etc/os-release; echo $ID$VERSION_ID)
 
-   > ✅ This ensures you get version 1.17.x or newer, which is required for modern drivers.
+# Add NVIDIA GPG key
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey \
+  | sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
 
-3. **Restart the Docker daemon**
+# Add NVIDIA repository
+curl -s -L https://nvidia.github.io/libnvidia-container/$distribution/libnvidia-container.list \
+  | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' \
+  | sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
 
-       sudo systemctl restart docker
+# Install the toolkit
+sudo apt update
+sudo apt install -y nvidia-container-toolkit
+```
 
-4. **Test GPU access**  
-   Run:
+> ✅ This setup ensures you get **version 1.17.x or newer**, which is required for modern NVIDIA drivers.  
+> Run `nvidia-container-cli --version` to verify.
 
-       docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi
+### 3. Restart the Docker Daemon
 
-   You should see your GPU listed.
+```bash
+sudo systemctl restart docker
+```
+
+> ⚠️ If `systemctl` fails, try:
+```bash
+sudo service docker restart
+```
+
+### 4. Test GPU Access
+
+Run:
+
+```bash
+docker run --rm --gpus all nvidia/cuda:12.3.2-base-ubuntu22.04 nvidia-smi
+```
+
+You should see your GPU listed.
 
 ---
 
