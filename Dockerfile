@@ -43,7 +43,7 @@ WORKDIR /workspace/stable-diffusion-webui
 # Create virtual environment and install dependencies
 RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
     /workspace/stable-diffusion-webui/venv/bin/pip install --upgrade pip && \
-    /workspace/stable-diffusion-webui/venv/bin/pip install torch torchvision torchaudio \
+    /workspace/stable-diffusion-webui/venv/bin/pip install torch torchvision \
         --index-url https://download.pytorch.org/whl/cu128 && \
     /workspace/stable-diffusion-webui/venv/bin/pip install \
         open-clip-torch==2.20.0 \
