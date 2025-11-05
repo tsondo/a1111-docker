@@ -30,7 +30,18 @@ cd ~/a1111-docker
 
 This gives you access to `setup.sh`, `docker-compose.yml`, and all required files.
 
-### 2. Install Docker and Docker Compose
+### 2. Create your `.env` file
+
+This project uses a `.env` file to define persistent folder paths for Docker volume mounts. A sample file is included in the repo. Run the following command to create your own `.env` file:
+
+cp .env.sample .env
+
+You can customize the paths inside `.env` if needed. The default values assume you're running everything from `~/a1111-docker`.
+
+If you skip this step, `docker compose` will show warnings and fail to mount required folders correctly.
+
+
+### 3. Install Docker and Docker Compose
 
 Follow official instructions:  
 https://docs.docker.com/engine/install/
@@ -44,7 +55,7 @@ Add your user to the Docker group (optional):
 sudo usermod -aG docker $USER
 newgrp docker
 
-### 3. Run setup and launch
+### 4. Run setup and launch
 
 bash setup.sh
 docker compose up

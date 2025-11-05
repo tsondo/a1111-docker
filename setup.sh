@@ -93,6 +93,11 @@ if [ ! -f "$CONFIG_PATH" ]; then
   echo "[INFO] Downloading v1-inference.yaml to configs/"
   curl -sSL -o "$CONFIG_PATH" https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml
 fi
+# Ensure .env exists
+if [ ! -f .env ]; then
+  echo "📦 No .env file found. Copying from .env.sample..."
+  cp .env.sample .env
+fi
 
 # --- Launch container ---
 echo "[INFO] Launching container with docker compose up..."
