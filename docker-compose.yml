@@ -15,16 +15,18 @@ services:
       - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
       - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
       - ${EXT_DIR}:/workspace/stable-diffusion-webui/extensions
-      - ${WILDCARD_DIR}:/workspace/stable-diffusion-webui/extensions/wildcards
       - ${EMBEDDINGS_DIR}:/workspace/stable-diffusion-webui/embeddings
       - ${LOGS_DIR}:/workspace/stable-diffusion-webui/logs
       - ${CACHE_DIR}:/workspace/stable-diffusion-webui/cache
       - hf_models:/workspace/stable-diffusion-webui/cache/huggingface
       - ${REPO_DIR}:/workspace/stable-diffusion-webui/repositories
+      - ${VENV_DIR}:/workspace/stable-diffusion-webui/venv
+      - ${PIP_CACHE_DIR}:/home/webui/.cache/pip
     environment:
       - CLI_ARGS=--xformers --enable-insecure-extension-access --listen --port 7860
       - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so
       - HF_HOME=/workspace/stable-diffusion-webui/cache/huggingface
+
     env_file:
       - .env
     deploy:
