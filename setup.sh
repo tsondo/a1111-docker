@@ -66,7 +66,6 @@ PERSIST_DIRS=(
   cache
   cache/huggingface
   repositories
-  venv
   pip-cache
 )
 
