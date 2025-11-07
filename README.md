@@ -129,6 +129,18 @@ Any extensions installed via the WebUI (e.g., ADetailer) will persist across res
 
 ---
 
+## ⚠️ Why venv is *not* persisted
+
+You may notice there is no `venv/` entry in the persistent folders above.  
+That’s intentional: the Python virtual environment is built inside the image at build time.  
+If you mount an empty host folder over `/workspace/stable-diffusion-webui/venv`, it hides the prebuilt environment and causes startup errors (`venv/bin/activate: No such file or directory`).  
+
+Instead, this project persists the **pip cache** (`pip-cache/`), so package downloads are reused across runs.  
+This keeps contributor setup simple and portable: extensions install their dependencies once, and subsequent installs are fast thanks to the cache, without risking an empty overlay of the venv.
+
+---
+
+
 ## 📦 Preloading Models (Optional)
 
 To pre-load model downloads before first launch:
