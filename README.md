@@ -153,18 +153,22 @@ wget -O ~/a1111-docker/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors \
 
 ## 🔁 Daily Usage: Bringing the Container Up and Down
 
-To start the WebUI each day, **always run `setup.sh`** — not just `docker compose up`. This ensures all folders, configs, and updates are in place before launch.
+💡 Tip: To ensure you always have the latest build, correct permissions, and all persistent folders in place, it’s best to start the WebUI using `setup.sh`.  
 
+``` 
 bash setup.sh
+```
 
-This will:
+You can still run `docker compose up` directly, but the script makes sure updates and setup steps aren’t missed.
+
+bash setup.sh will:
 
 - Pull the latest repo updates
 - Rebuild the container only if needed
 - Verify all persistent folders and config files
 - Launch the WebUI container
 
-Access the interface at http://localhost:7860
+You can then access the interface at http://localhost:7860
 
 ---
 
