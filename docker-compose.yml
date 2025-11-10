@@ -25,7 +25,7 @@ services:
       - CLI_ARGS=--xformers --enable-insecure-extension-access --listen --port 7860
       - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so
       - HF_HOME=/workspace/stable-diffusion-webui/cache/huggingface
-
+      - MPLCONFIGDIR=/workspace/stable-diffusion-webui/cache/matplotlib
     env_file:
       - .env
     deploy:

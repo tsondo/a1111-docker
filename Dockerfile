@@ -66,6 +66,8 @@ RUN mkdir -p /workspace/stable-diffusion-webui/models/hypernetworks && \
     mkdir -p /workspace/stable-diffusion-webui/logs && \
     mkdir -p /workspace/stable-diffusion-webui/cache && \
     mkdir -p /workspace/stable-diffusion-webui/repositories && \
+    mkdir -p /workspace/stable-diffusion-webui/cache/matplotlib && \
+    chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/cache/matplotlib && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/models && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/outputs && \
     chown -R ${USER_ID}:${GROUP_ID} /workspace/stable-diffusion-webui/extensions && \
@@ -78,7 +80,6 @@ ENV HF_HOME="/workspace/stable-diffusion-webui/cache/huggingface"
 
 # Environment overrides for A1111
 ENV TORCH_COMMAND="echo 'Skipping torch install, already provided in venv'"
-ENV COMMANDLINE_ARGS="--skip-torch-cuda-test --xformers --opt-sdp-attention --listen --port 7860 --enable-insecure-extension-access"
 
 # Create non-root user with host-matching UID/GID for volume mounts
 RUN groupadd -g ${GROUP_ID} webui && \
