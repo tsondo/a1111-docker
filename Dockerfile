@@ -54,7 +54,15 @@ RUN python3 -m venv /workspace/stable-diffusion-webui/venv && \
         torchsde==0.2.6 \
         gradio==3.41.2 \
         gradio_client==0.5.0 \
-        xformers
+        xformers \
+        jax==0.6.2 \
+        jaxlib==0.6.2 \
+        ml_dtypes==0.5.3 \
+        opencv-contrib-python==4.11.0.86 \
+        polars==1.35.2 \
+        mediapipe \
+        ultralytics
+
 
 # Ensure runtime directories are writable by the mapped user
 ARG USER_ID=1000
@@ -77,7 +85,8 @@ RUN mkdir -p /workspace/stable-diffusion-webui/models/hypernetworks && \
 
 # Hugging Face cache location
 ENV HF_HOME="/workspace/stable-diffusion-webui/cache/huggingface"
-
+# Ensure pip uses the persistent cache directory
+ENV PIP_CACHE_DIR=/home/webui/.cache/pip
 # Environment overrides for A1111
 ENV TORCH_COMMAND="echo 'Skipping torch install, already provided in venv'"
 
