@@ -71,6 +71,7 @@ PERSIST_DIRS=(
   cache/huggingface
   repositories
   pip-cache
+  hf_models
 )
 
 echo "[INFO] Creating persistent directories..."
