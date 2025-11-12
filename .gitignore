@@ -9,6 +9,7 @@ configs/
 embeddings/
 logs/
 cache/
+pip-cache/
 
 # Ignore local environment config
 .env
