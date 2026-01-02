@@ -1,0 +1,28 @@
+*.sh text eol=lf
+# Normalize line endings for common text/code files
+*.sh text eol=lf
+*.py text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.Dockerfile text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Treat all text files as UTF-8
+* text=auto eol=lf
+
+# Binary files (prevent Git from attempting to diff or modify line endings)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.safetensors binary
+*.pt binary
+*.ckpt binary
+*.bin binary
+*.zip binary
+*.tar binary
+*.gz binary

@@ -1,0 +1,46 @@
+services:
+  a1111:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: stable-diffusion-webui:latest
+    container_name: a1111
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./config.json:/workspace/stable-diffusion-webui/config.json
+      - ./ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
+      - ./styles.csv:/workspace/stable-diffusion-webui/styles.csv
+      - ${CONFIG_DIR}:/workspace/stable-diffusion-webui/configs
+      - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
+      - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
+      - ${EXT_DIR}:/workspace/stable-diffusion-webui/extensions
+      - ${EMBEDDINGS_DIR}:/workspace/stable-diffusion-webui/embeddings
+      - ${LOGS_DIR}:/workspace/stable-diffusion-webui/logs
+      - ${CACHE_DIR}:/workspace/stable-diffusion-webui/cache
+      - hf_models:/workspace/stable-diffusion-webui/cache/huggingface
+      - ${REPO_DIR}:/workspace/stable-diffusion-webui/repositories
+      - ${PIP_CACHE_DIR}:/workspace/stable-diffusion-webui/pip-cache
+    environment:
+      - COMMANDLINE_ARGS=--xformers --enable-insecure-extension-access --listen --port 7860
+      - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so
+      - HF_HOME=/workspace/stable-diffusion-webui/cache/huggingface
+      - MPLCONFIGDIR=/workspace/stable-diffusion-webui/cache/matplotlib
+    env_file:
+      - .env
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+
+volumes:
+  hf_models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${HF_MODELS_PATH}

@@ -1,0 +1,13 @@
+NOTICE
+
+This project packages and distributes configuration files for
+AUTOMATIC1111/stable-diffusion-webui.
+
+Upstream project:
+  https://github.com/AUTOMATIC1111/stable-diffusion-webui
+
+License:
+  This project, and the upstream project it packages, are licensed
+  under the GNU Affero General Public License v3.0 (AGPL‑3.0).
+
+All modifications in this repository are provided under the same license.

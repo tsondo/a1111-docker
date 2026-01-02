@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# --- Safety check ---
+if [ "$(id -u)" -eq 0 ]; then
+  echo "[ERROR] Do not run setup.sh as root. Please run as your normal user."
+  exit 1
+fi
+
+# --- Config ---
+REPO_URL="https://github.com/tsondo/a1111-docker.git"
+REPO_DIR="$HOME/a1111-docker"
+CONTAINER_UID=1000
+CONTAINER_GID=1000
+# Ensure .env exists
+if [ ! -f .env ]; then
+  echo "📦 No .env file found. Copying from .env.sample..."
+  cp .env.sample .env
+fi
+echo "[INFO] Starting setup..."
+
+# --- Parse flags ---
+USE_CACHE=true
+if [[ "${1:-}" == "--no-cache" ]]; then
+  USE_CACHE=false
+  echo "[INFO] Rebuilding container image with --no-cache"
+fi
+
+# --- Clone or update repo ---
+if [ -d "$REPO_DIR/.git" ]; then
+  echo "[INFO] Repo already exists..."
+
+  current_branch=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
+
+  if [ "$current_branch" = "main" ]; then
+    echo "[INFO] On main branch, pulling latest..."
+    OLD_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
+    git -C "$REPO_DIR" pull --rebase
+    NEW_HASH=$(sha1sum "$REPO_DIR/setup.sh" | awk '{print $1}')
+    if [ "$OLD_HASH" != "$NEW_HASH" ]; then
+      echo "[INFO] setup.sh was updated during pull. Please re-run it to apply changes."
+      exit 0
+    fi
+  else
+    echo "[INFO] On branch '$current_branch', skipping git pull to preserve local changes."
+  fi
+else
+  echo "[INFO] Cloning fresh repo..."
+  git clone "$REPO_URL" "$REPO_DIR"
+fi
+
+cd "$REPO_DIR"
+
+# --- Build container ---
+if $USE_CACHE; then
+  docker compose build
+else
+  docker compose build --no-cache
+fi
+
+# --- Persistent directories (must match docker-compose mounts) ---
+PERSIST_DIRS=(
+  configs
+  models
+  outputs
+  extensions
+  extensions/wildcards
+  embeddings
+  logs
+  cache
+  cache/huggingface
+  repositories
+  pip-cache
+  hf_models
+)
+
+echo "[INFO] Creating persistent directories..."
+for d in "${PERSIST_DIRS[@]}"; do
+  mkdir -p "$REPO_DIR/$d"
+done
+
+echo "[INFO] Fixing host-side ownership to match container UID:GID ($CONTAINER_UID:$CONTAINER_GID)..."
+for d in "${PERSIST_DIRS[@]}"; do
+  sudo chown -R "$CONTAINER_UID:$CONTAINER_GID" "$REPO_DIR/$d"
+done
+
+# --- Prepopulate UI config files if missing ---
+for f in config.json ui-config.json styles.csv; do
+  TARGET="$REPO_DIR/$f"
+  if [ ! -s "$TARGET" ]; then
+    echo "{}" > "$TARGET"
+    echo "[INFO] Created empty $f in repo root"
+  fi
+done
+
+# --- Ensure default model config exists in expected path ---
+CONFIG_PATH="$REPO_DIR/configs/v1-inference.yaml"
+if [ ! -f "$CONFIG_PATH" ]; then
+  echo "[INFO] Downloading v1-inference.yaml to configs/"
+  curl -sSL -o "$CONFIG_PATH" https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml
+fi
+# --- Launch container ---
+echo "[INFO] Launching container with docker compose up..."
+docker compose up
