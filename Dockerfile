@@ -79,7 +79,7 @@ RUN set -eux; \
   rm -rf /tmp/a1111-src/.git; \
   clone_repo https://github.com/crowsonkb/k-diffusion.git repositories/k-diffusion "k-diffusion"; \
   clone_repo https://github.com/CompVis/taming-transformers.git repositories/taming-transformers "taming-transformers"; \
-  clone_repo https://github.com/Stability-AI/stablediffusion.git repositories/stablediffusion "stablediffusion"; \
+  clone_repo https://github.com/w-e-w/stablediffusion.git repositories/stablediffusion "stablediffusion"; \
   clone_repo https://github.com/openai/CLIP.git repositories/CLIP "CLIP"; \
   clone_repo https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets.git repositories/stable-diffusion-webui-assets "webui-assets"
 
