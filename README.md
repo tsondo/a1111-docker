@@ -19,7 +19,7 @@ Check out the [GETTING_STARTED.md](GETTING_STARTED.md) guide for a plain‑langu
 
 ---
 
-## 🐧 Setup for Linux (Ubuntu, Debian, Arch, etc. Assumes Docker with Compose is already installed)
+## 🐧 Setup for Linux
 
 ### 1. Clone the repo
 
@@ -43,17 +43,74 @@ If you skip this step, `docker compose` will show warnings and fail to mount req
 
 ### 3. Install Docker and Docker Compose
 
-Follow official instructions:  
-https://docs.docker.com/engine/install/
+Pick your distro below. All methods install Docker Engine with the Compose plugin (`docker compose`).
 
-Then install Docker Compose plugin:
+<details>
+<summary><strong>Ubuntu / Debian</strong></summary>
 
-sudo apt install docker-compose-plugin
+```bash
+# Add Docker's official GPG key and repo
+sudo apt update
+sudo apt install -y ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+# For Debian, replace "ubuntu" with "debian" in the two URLs above
 
-Add your user to the Docker group (optional):
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] \
+  https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
+# Install Docker Engine + Compose plugin
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+```
+
+</details>
+
+<details>
+<summary><strong>Fedora</strong></summary>
+
+```bash
+# Add the Docker repo
+sudo dnf -y install dnf-plugins-core
+sudo dnf config-manager addrepo --from-repofile=https://download.docker.com/linux/fedora/docker-ce.repo
+
+# Install Docker Engine + Compose plugin
+sudo dnf install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+# Start and enable the Docker service
+sudo systemctl enable --now docker
+```
+
+</details>
+
+<details>
+<summary><strong>Arch Linux</strong></summary>
+
+```bash
+# Install from the official Arch repos
+sudo pacman -S docker docker-compose docker-buildx
+
+# Start and enable the Docker service
+sudo systemctl enable --now docker
+```
+
+</details>
+
+After installing, add your user to the `docker` group so you can run commands without `sudo`:
+
+```bash
 sudo usermod -aG docker $USER
-newgrp docker
+newgrp docker   # applies the change in your current shell
+```
+
+Verify everything works:
+
+```bash
+docker --version
+docker compose version
+```
 
 ### 4. Run setup and launch
 
