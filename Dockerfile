@@ -29,7 +29,7 @@ RUN python3 -m venv venv
 
 # Layer 1 (heavy, rarely changes): Torch + CUDA wheels
 RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_ID} \
-    venv/bin/pip install --upgrade pip setuptools && \
+    venv/bin/pip install --upgrade pip && \
     venv/bin/pip install torch torchvision \
         --index-url https://download.pytorch.org/whl/cu128
 
@@ -82,6 +82,14 @@ RUN set -eux; \
   clone_repo https://github.com/w-e-w/stablediffusion.git repositories/stablediffusion "stablediffusion"; \
   clone_repo https://github.com/openai/CLIP.git repositories/CLIP "CLIP"; \
   clone_repo https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets.git repositories/stable-diffusion-webui-assets "webui-assets"
+
+# Install CLIP from cloned repo. Its setup.py requires pkg_resources which was
+# removed in setuptools 81+. We pin setuptools<81 in an isolated build, then
+# remove the pin so it doesn't affect anything else.
+RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_ID} \
+    venv/bin/pip install "setuptools<81" && \
+    venv/bin/pip install repositories/CLIP && \
+    venv/bin/pip install --upgrade setuptools
 
 # Create runtime directories that may not exist in the repo
 RUN mkdir -p cache/huggingface cache/matplotlib models/hypernetworks
