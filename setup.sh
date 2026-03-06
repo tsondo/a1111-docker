@@ -46,6 +46,21 @@ if [ ! -f "$REPO_DIR/.env" ]; then
   echo "[INFO] No .env file found. Copying from .env.sample..."
   cp "$REPO_DIR/.env.sample" "$REPO_DIR/.env"
 fi
+
+# Migrate old .env variable names to new ones
+if grep -q '^REPO_DIR=' "$REPO_DIR/.env" 2>/dev/null; then
+  echo "[INFO] Migrating .env: REPO_DIR -> REPOSITORIES_DIR"
+  sed -i 's/^REPO_DIR=/REPOSITORIES_DIR=/' "$REPO_DIR/.env"
+fi
+if grep -q '^HF_MODELS_PATH=' "$REPO_DIR/.env" 2>/dev/null; then
+  echo "[INFO] Migrating .env: HF_MODELS_PATH -> HF_MODELS_DIR"
+  sed -i 's/^HF_MODELS_PATH=/HF_MODELS_DIR=/' "$REPO_DIR/.env"
+fi
+if grep -q '^WILDCARD_DIR=' "$REPO_DIR/.env" 2>/dev/null; then
+  echo "[INFO] Migrating .env: removing unused WILDCARD_DIR"
+  sed -i '/^WILDCARD_DIR=/d' "$REPO_DIR/.env"
+fi
+
 echo "[INFO] Starting setup..."
 
 # --- Parse flags ---
