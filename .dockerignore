@@ -1,4 +1,4 @@
-# Ignore local runtime artifacts
+# Persistent runtime data (large, not needed for build)
 outputs/
 logs/
 cache/
@@ -6,21 +6,33 @@ repositories/
 extensions/
 models/
 embeddings/
+pip-cache/
+hf_models/
 
-# Ignore config files that are mounted externally
+# Config files mounted separately
 configs/
+config.json
+ui-config.json
+styles.csv
 
-# Ignore Git metadata
+# Git metadata
 .git/
 .gitignore
 .gitattributes
 
-# Ignore setup scripts and local tooling
+# Documentation and setup (not needed in image)
+*.md
+HOWTO.md
+GETTING_STARTED.md
+LICENSE
+NOTICE
+
+# Local env and setup
 setup.sh
 .env
-.env.example
+.env.sample
 
-# Ignore OS and editor artifacts
+# OS and editor artifacts
 *.swp
 *.swo
 *.bak

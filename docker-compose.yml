@@ -18,8 +18,8 @@ services:
       - ${EMBEDDINGS_DIR}:/workspace/stable-diffusion-webui/embeddings
       - ${LOGS_DIR}:/workspace/stable-diffusion-webui/logs
       - ${CACHE_DIR}:/workspace/stable-diffusion-webui/cache
-      - hf_models:/workspace/stable-diffusion-webui/cache/huggingface
-      - ${REPO_DIR}:/workspace/stable-diffusion-webui/repositories
+      - ${HF_MODELS_DIR}:/workspace/stable-diffusion-webui/cache/huggingface
+      - ${REPOSITORIES_DIR}:/workspace/stable-diffusion-webui/repositories
       - ${PIP_CACHE_DIR}:/workspace/stable-diffusion-webui/pip-cache
     environment:
       - COMMANDLINE_ARGS=--xformers --enable-insecure-extension-access --listen --port 7860
@@ -35,12 +35,6 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-    restart: unless-stopped
-
-volumes:
-  hf_models:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ${HF_MODELS_PATH}
+        limits:
+          memory: 32g
+    restart: on-failure:5

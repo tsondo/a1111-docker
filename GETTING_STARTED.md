@@ -15,14 +15,14 @@ The benefit: the software runs the same way on any machine, without you having t
 ## 🎨 What is AUTOMATIC1111 (A1111)?
 
 AUTOMATIC1111 is a popular **web interface for Stable Diffusion**.  
-It lets you generate, edit, and experiment with AI‑generated images through a browser.  
-This build runs A1111 inside a Docker container, so you don’t have to worry about CUDA, Python, or dependency setup.
+It lets you generate, edit, and experiment with AI-generated images through a browser.  
+This build runs A1111 inside a Docker container, so you don't have to worry about CUDA, Python, or dependency setup.
 
 ---
 
 ## 📦 Why this build?
 
-This Docker setup separates what’s **ephemeral** (rebuilt each time) from what’s **persistent** (your data and settings):
+This Docker setup separates what's **ephemeral** (rebuilt each time) from what's **persistent** (your data and settings):
 
 - **Ephemeral (inside the container):**
   - Python environment
@@ -48,7 +48,7 @@ In short: run the provided `setup.sh` script, then open your browser to:
 
 http://localhost:7860
 
-That’s the A1111 WebUI.
+That's the A1111 WebUI.
 
 ---
 
@@ -68,7 +68,7 @@ This build expects either **Stable Diffusion 1.5** or **Stable Diffusion XL (SDX
 
 ## 🪟 Accessing folders from Windows
 
-If you’re running Docker Desktop on Windows:
+If you're running Docker Desktop on Windows:
 
 - The `a1111-docker` folder on your host is mounted into the container.
 - That means you can drop models into `a1111-docker/models/Stable-diffusion/...` directly from Windows Explorer.
