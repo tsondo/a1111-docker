@@ -10,6 +10,7 @@ embeddings/
 logs/
 cache/
 pip-cache/
+hf_models/
 
 # Ignore local environment config
 .env
