@@ -39,7 +39,6 @@ RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_
         xformers \
         open-clip-torch==2.20.0 \
         pytorch-lightning==1.9.4 \
-        pytorch-triton \
         torchdiffeq==0.2.3 \
         torchmetrics==1.8.2 \
         torchsde==0.2.6 \
