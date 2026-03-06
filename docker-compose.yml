@@ -26,6 +26,7 @@ services:
       - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so
       - HF_HOME=/workspace/stable-diffusion-webui/cache/huggingface
       - MPLCONFIGDIR=/workspace/stable-diffusion-webui/cache/matplotlib
+      - STABLE_DIFFUSION_REPO=https://github.com/w-e-w/stablediffusion.git
     env_file:
       - .env
     deploy:
