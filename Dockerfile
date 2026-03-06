@@ -29,7 +29,7 @@ RUN python3 -m venv venv
 
 # Layer 1 (heavy, rarely changes): Torch + CUDA wheels
 RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_ID} \
-    venv/bin/pip install --upgrade pip && \
+    venv/bin/pip install --upgrade pip setuptools && \
     venv/bin/pip install torch torchvision \
         --index-url https://download.pytorch.org/whl/cu128
 
