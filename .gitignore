@@ -33,7 +33,10 @@ venv/
 # Ignore editor/IDE settings
 .vscode/
 .idea/
-
+unified-ai.code-workspace
 # Ignore OS junk
 .DS_Store
 Thumbs.db
+SadTalker/
+a1111.code-workspace
+ag_access_test.txt
