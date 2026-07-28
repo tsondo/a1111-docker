@@ -103,6 +103,9 @@ docker run hello-world   # should work without sudo
 
 ## 3. Install the NVIDIA Container Toolkit
 
+> **AMD GPU?** Skip this whole section — ROCm containers need no extra toolkit.
+> Just verify `/dev/kfd` exists (`ls /dev/kfd`); if it does, you're ready.
+
 This is required for GPU passthrough (`--gpus all`). You need an NVIDIA GPU driver already installed on the host.
 
 > **WSL users:** Install the [NVIDIA WSL driver](https://developer.nvidia.com/cuda/wsl) on the Windows side first. Do NOT install a GPU driver inside WSL — Windows handles this.

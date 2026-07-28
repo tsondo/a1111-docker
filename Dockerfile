@@ -1,6 +1,10 @@
 # syntax=docker/dockerfile:1
-# NVIDIA CUDA 12.8 runtime on Ubuntu 22.04
-FROM nvidia/cuda:12.8.0-runtime-ubuntu22.04
+# Default: NVIDIA CUDA 12.8 runtime on Ubuntu 22.04.
+# The ROCm variant overrides BASE_IMAGE, TORCH_INDEX_URL, and
+# INSTALL_XFORMERS (see docker-compose.rocm.yml) — PyTorch's ROCm wheels
+# bundle the ROCm runtime, so a plain Ubuntu base is enough there.
+ARG BASE_IMAGE=nvidia/cuda:12.8.0-runtime-ubuntu22.04
+FROM ${BASE_IMAGE}
 
 LABEL org.opencontainers.image.source="https://github.com/tsondo/a1111-docker"
 LABEL org.opencontainers.image.description="AUTOMATIC1111 Stable Diffusion WebUI with CUDA 12.8, ready to run"
@@ -30,16 +34,23 @@ USER webui
 # Create virtual environment
 RUN python3 -m venv venv
 
-# Layer 1 (heavy, rarely changes): Torch + CUDA wheels
+# Layer 1 (heavy, rarely changes): Torch GPU wheels.
+# Pinned: newer torch/torchvision pull in numpy 2, which conflicts with
+# A1111 v1.10.1's numpy==1.26.2 pin and makes pip silently replace torch
+# with a PyPI (CUDA) build during the requirements install.
+ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu128
 RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_ID} \
     venv/bin/pip install --upgrade pip "setuptools<81" && \
-    venv/bin/pip install torch torchvision \
-        --index-url https://download.pytorch.org/whl/cu128
+    venv/bin/pip install torch==2.10.0 torchvision==0.25.0 \
+        --index-url ${TORCH_INDEX_URL}
 
 # Layer 2 (medium, changes occasionally): xformers + ML deps
+# xformers is CUDA-only; the ROCm variant skips it and uses
+# --opt-sdp-attention at runtime instead.
+ARG INSTALL_XFORMERS=true
 RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_ID} \
+    if [ "${INSTALL_XFORMERS}" = "true" ]; then venv/bin/pip install xformers; fi && \
     venv/bin/pip install \
-        xformers \
         open-clip-torch==2.20.0 \
         pytorch-lightning==1.9.4 \
         torchdiffeq==0.2.3 \
@@ -64,7 +75,14 @@ RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_
 # pip's isolated build environments install the latest setuptools unless
 # constrained — PIP_CONSTRAINT reaches inside them, and also covers
 # packages that extensions install at runtime.
-RUN echo "setuptools<81" > /home/webui/pip-constraints.txt
+# Also freeze the installed torch/torchvision versions (minus the
+# +cu/+rocm local suffix, which constraint files reject) so no later pip
+# run — A1111's requirements install or an extension — can swap the GPU
+# stack for a different build. A conflict now fails the build loudly
+# instead of silently replacing torch.
+RUN echo "setuptools<81" > /home/webui/pip-constraints.txt && \
+    venv/bin/pip freeze | grep -E '^(torch|torchvision)==' | sed 's/+.*$//' >> /home/webui/pip-constraints.txt && \
+    cat /home/webui/pip-constraints.txt
 ENV PIP_CONSTRAINT="/home/webui/pip-constraints.txt"
 
 # Fetch AUTOMATIC1111 at a pinned release. Bump A1111_VERSION to upgrade.

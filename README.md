@@ -59,6 +59,19 @@ Access the WebUI at http://localhost:7860 from your Windows browser.
 
 ---
 
+## 🔴 AMD GPUs (ROCm) — experimental
+
+The same two commands work on AMD: `setup.sh` auto-detects an AMD GPU (via `/dev/kfd`) and uses the ROCm image (`ghcr.io/tsondo/a1111-docker:latest-rocm`) automatically. Requirements are simpler than NVIDIA's — just native Linux with the standard `amdgpu` kernel driver (included in every modern distro). No container toolkit needed. **ROCm is not supported under WSL2** — Linux only.
+
+Two AMD-specific notes:
+
+- xformers is CUDA-only, so the ROCm variant uses PyTorch's built-in SDP attention instead. This happens automatically.
+- Many consumer cards need a compatibility override before generation works. If the container starts but generating images fails or crashes, copy `.env.sample` to `.env` and uncomment `HSA_OVERRIDE_GFX_VERSION`: use `10.3.0` for RX 6000-series cards, `11.0.0` for RX 7000-series. Then restart.
+
+This variant is **untested on real hardware** so far — if you run it, success or failure reports are very welcome as GitHub issues.
+
+---
+
 ## 📦 The prebuilt image
 
 A ready-to-run image is published to GitHub Container Registry as [`ghcr.io/tsondo/a1111-docker`](https://github.com/tsondo/a1111-docker/pkgs/container/a1111-docker), built by CI from this repo with A1111 pinned to a known-good release. `bash setup.sh --pull` uses it automatically. If the pull fails (e.g. no network to GHCR), the script falls back to building locally.
@@ -79,7 +92,7 @@ Running `bash setup.sh` without `--pull` builds the same image on your machine i
 - Migrates settings from older versions of this project
 - Builds (or pulls, with `--pull`) the image and starts the container
 
-Flags: `--pull` (use prebuilt image), `--no-cache` (full rebuild), `-d`/`--detach` (run in background), `-h` (help).
+Flags: `--pull` (use prebuilt image), `--no-cache` (full rebuild), `-d`/`--detach` (run in background), `--rocm`/`--nvidia` (force a GPU variant), `-h` (help).
 
 ---
 

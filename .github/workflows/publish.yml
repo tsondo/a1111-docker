@@ -11,6 +11,20 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - flavor: cuda
+            base_image: nvidia/cuda:12.8.0-runtime-ubuntu22.04
+            torch_index: https://download.pytorch.org/whl/cu128
+            install_xformers: "true"
+            suffix: ""
+          - flavor: rocm
+            base_image: ubuntu:22.04
+            torch_index: https://download.pytorch.org/whl/rocm7.1
+            install_xformers: "false"
+            suffix: "-rocm"
     steps:
       # The image is large (~13 GB); reclaim space the runner wastes on
       # toolchains we don't need.
@@ -38,6 +52,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
+          flavor: |
+            suffix=${{ matrix.suffix }},onlatest=true
           tags: |
             type=semver,pattern={{version}}
             type=raw,value=latest,enable={{is_default_branch}}
@@ -47,5 +63,9 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            BASE_IMAGE=${{ matrix.base_image }}
+            TORCH_INDEX_URL=${{ matrix.torch_index }}
+            INSTALL_XFORMERS=${{ matrix.install_xformers }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

@@ -1,0 +1,57 @@
+# AMD GPU (ROCm) variant. setup.sh selects this file automatically when it
+# detects an AMD GPU (/dev/kfd), or force it with: bash setup.sh --rocm
+# To use compose directly: docker compose -f docker-compose.rocm.yml up
+#
+# Standalone file, not an override — keep volumes/settings in sync with
+# docker-compose.yml.
+services:
+  a1111:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        BASE_IMAGE: ubuntu:22.04
+        TORCH_INDEX_URL: https://download.pytorch.org/whl/rocm7.1
+        INSTALL_XFORMERS: "false"
+    image: ghcr.io/tsondo/a1111-docker:latest-rocm
+    container_name: a1111
+    ports:
+      - "7860:7860"
+    volumes:
+      - ./config.json:/workspace/stable-diffusion-webui/config.json
+      - ./ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
+      - ./styles.csv:/workspace/stable-diffusion-webui/styles.csv
+      - ${MODEL_DIR:-./models}:/workspace/stable-diffusion-webui/models
+      - ${OUTPUT_DIR:-./outputs}:/workspace/stable-diffusion-webui/outputs
+      - ${EXT_DIR:-./extensions}:/workspace/stable-diffusion-webui/extensions
+      - ${EMBEDDINGS_DIR:-./embeddings}:/workspace/stable-diffusion-webui/embeddings
+      - ${LOGS_DIR:-./logs}:/workspace/stable-diffusion-webui/logs
+      - ${CACHE_DIR:-./cache}:/workspace/stable-diffusion-webui/cache
+      - ${PIP_CACHE_DIR:-./pip-cache}:/workspace/stable-diffusion-webui/pip-cache
+    environment:
+      # No xformers on ROCm; SDP attention is the AMD equivalent.
+      - COMMANDLINE_ARGS=--opt-sdp-attention --enable-insecure-extension-access --listen --port 7860
+      # Compatibility override for consumer cards ROCm doesn't officially
+      # support. Set in .env if needed: RX 6000 series -> 10.3.0,
+      # RX 7000 series -> 11.0.0. Empty means "not set" (see command below).
+      - HSA_OVERRIDE_GFX_VERSION=${HSA_OVERRIDE_GFX_VERSION:-}
+    # ROCm treats an empty HSA_OVERRIDE_GFX_VERSION differently from an
+    # absent one, so unset it when blank before starting the WebUI.
+    command: ["/bin/bash", "-lc", "if [ -z \"${HSA_OVERRIDE_GFX_VERSION:-}\" ]; then unset HSA_OVERRIDE_GFX_VERSION; fi; source venv/bin/activate && ./webui.sh"]
+    # AMD GPU passthrough: kernel compute + render devices, plus the host
+    # groups that own them. setup.sh fills VIDEO_GID/RENDER_GID into .env.
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - "${VIDEO_GID:-44}"
+      - "${RENDER_GID:-992}"
+    security_opt:
+      - seccomp:unconfined
+    deploy:
+      resources:
+        limits:
+          memory: 32g
+    restart: on-failure:5

@@ -15,20 +15,41 @@ GROUP_ID="$(id -g)"
 USE_CACHE=true
 DETACH=false
 PULL=false
+VARIANT=auto
 for arg in "$@"; do
   case "$arg" in
     --no-cache) USE_CACHE=false; echo "[INFO] Rebuilding container image with --no-cache" ;;
     -d|--detach) DETACH=true ;;
     --pull) PULL=true ;;
+    --rocm) VARIANT=rocm ;;
+    --nvidia) VARIANT=nvidia ;;
     -h|--help)
-      echo "Usage: setup.sh [--pull] [--no-cache] [-d|--detach]"
+      echo "Usage: setup.sh [--pull] [--no-cache] [-d|--detach] [--rocm|--nvidia]"
       echo "  --pull       Pull the prebuilt image from GHCR instead of building locally"
       echo "  --no-cache   Build the image from scratch, ignoring Docker's cache"
       echo "  -d, --detach Run the container in the background"
+      echo "  --rocm       Force the AMD GPU (ROCm) variant"
+      echo "  --nvidia     Force the NVIDIA GPU (CUDA) variant"
+      echo "  (default: auto-detect — AMD if /dev/kfd exists, NVIDIA otherwise)"
       exit 0
       ;;
   esac
 done
+
+# --- Pick GPU variant ---
+if [ "$VARIANT" = "auto" ]; then
+  if [ -e /dev/kfd ]; then
+    VARIANT=rocm
+    echo "[INFO] AMD GPU detected (/dev/kfd) — using the ROCm variant."
+  else
+    VARIANT=nvidia
+  fi
+fi
+
+COMPOSE=(docker compose)
+if [ "$VARIANT" = "rocm" ]; then
+  COMPOSE=(docker compose -f docker-compose.rocm.yml)
+fi
 
 # --- Dependency checks ---
 if ! command -v docker &>/dev/null; then
@@ -40,15 +61,28 @@ if ! docker compose version &>/dev/null 2>&1; then
   exit 1
 fi
 
-# --- NVIDIA Container Toolkit check ---
-if ! docker info 2>/dev/null | grep -qi nvidia; then
-  echo "[WARNING] NVIDIA runtime not detected in Docker."
-  echo "          GPU passthrough may fail. Install the NVIDIA Container Toolkit:"
-  echo "          See HOWTO.md, or https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html"
-  echo ""
-  read -rp "Continue anyway? [y/N] " answer
-  if [[ ! "$answer" =~ ^[Yy]$ ]]; then
-    exit 0
+# --- GPU runtime checks ---
+if [ "$VARIANT" = "nvidia" ]; then
+  if ! docker info 2>/dev/null | grep -qi nvidia; then
+    echo "[WARNING] NVIDIA runtime not detected in Docker."
+    echo "          GPU passthrough may fail. Install the NVIDIA Container Toolkit:"
+    echo "          See HOWTO.md, or https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html"
+    echo "          (AMD GPU? Re-run with: bash setup.sh --rocm)"
+    echo ""
+    read -rp "Continue anyway? [y/N] " answer
+    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+      exit 0
+    fi
+  fi
+else
+  if [ ! -e /dev/kfd ]; then
+    echo "[WARNING] /dev/kfd not found — the amdgpu driver doesn't appear to be loaded."
+    echo "          GPU passthrough will fail. Note: ROCm requires native Linux (not WSL2)."
+    echo ""
+    read -rp "Continue anyway? [y/N] " answer
+    if [[ ! "$answer" =~ ^[Yy]$ ]]; then
+      exit 0
+    fi
   fi
 fi
 
@@ -73,7 +107,18 @@ for var in REPO_DIR HF_MODELS_PATH WILDCARD_DIR REPOSITORIES_DIR HF_MODELS_DIR C
 done
 
 # --- Record the host user's UID/GID for the image build ---
-for pair in "USER_ID:$USER_ID" "GROUP_ID:$GROUP_ID"; do
+ENV_PAIRS=("USER_ID:$USER_ID" "GROUP_ID:$GROUP_ID")
+
+# ROCm: the container needs the host's video/render group IDs to access
+# /dev/kfd and /dev/dri. These GIDs vary by distro, so record the real ones.
+if [ "$VARIANT" = "rocm" ]; then
+  video_gid=$(getent group video | cut -d: -f3 || true)
+  render_gid=$(getent group render | cut -d: -f3 || true)
+  [ -n "$video_gid" ] && ENV_PAIRS+=("VIDEO_GID:$video_gid")
+  [ -n "$render_gid" ] && ENV_PAIRS+=("RENDER_GID:$render_gid")
+fi
+
+for pair in "${ENV_PAIRS[@]}"; do
   var="${pair%%:*}"; val="${pair##*:}"
   if grep -q "^${var}=" .env; then
     sed -i "s/^${var}=.*/${var}=${val}/" .env
@@ -169,24 +214,24 @@ fi
 # --- Build or pull the image ---
 if $PULL; then
   echo "[INFO] Pulling prebuilt image from GHCR..."
-  if ! docker compose pull; then
+  if ! "${COMPOSE[@]}" pull; then
     echo "[WARNING] Pull failed (no published image, or no network). Building locally instead..."
-    docker compose build
+    "${COMPOSE[@]}" build
   fi
 elif $USE_CACHE; then
-  docker compose build
+  "${COMPOSE[@]}" build
 else
-  docker compose build --no-cache
+  "${COMPOSE[@]}" build --no-cache
 fi
 
 # --- Launch container ---
 if $DETACH; then
   echo "[INFO] Launching container in background..."
-  docker compose up -d
+  "${COMPOSE[@]}" up -d
   echo "[INFO] WebUI starting at http://localhost:7860"
-  echo "       View logs: docker compose logs -f"
-  echo "       Stop:      docker compose down"
+  echo "       View logs: ${COMPOSE[*]} logs -f"
+  echo "       Stop:      ${COMPOSE[*]} down"
 else
   echo "[INFO] Launching container (Ctrl+C to stop)..."
-  docker compose up
+  "${COMPOSE[@]}" up
 fi
