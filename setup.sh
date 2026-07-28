@@ -7,19 +7,36 @@ if [ "$(id -u)" -eq 0 ]; then
   exit 1
 fi
 
-# --- Dependency checks ---
-missing=()
-for cmd in git docker curl; do
-  if ! command -v "$cmd" &>/dev/null; then
-    missing+=("$cmd")
-  fi
+REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
+USER_ID="$(id -u)"
+GROUP_ID="$(id -g)"
+
+# --- Parse flags ---
+USE_CACHE=true
+DETACH=false
+PULL=false
+for arg in "$@"; do
+  case "$arg" in
+    --no-cache) USE_CACHE=false; echo "[INFO] Rebuilding container image with --no-cache" ;;
+    -d|--detach) DETACH=true ;;
+    --pull) PULL=true ;;
+    -h|--help)
+      echo "Usage: setup.sh [--pull] [--no-cache] [-d|--detach]"
+      echo "  --pull       Pull the prebuilt image from GHCR instead of building locally"
+      echo "  --no-cache   Build the image from scratch, ignoring Docker's cache"
+      echo "  -d, --detach Run the container in the background"
+      exit 0
+      ;;
+  esac
 done
-if ! docker compose version &>/dev/null 2>&1; then
-  missing+=("docker-compose-plugin")
+
+# --- Dependency checks ---
+if ! command -v docker &>/dev/null; then
+  echo "[ERROR] Docker is not installed. See HOWTO.md for installation instructions."
+  exit 1
 fi
-if [ ${#missing[@]} -gt 0 ]; then
-  echo "[ERROR] Missing required tools: ${missing[*]}"
-  echo "        See README.md for installation instructions."
+if ! docker compose version &>/dev/null 2>&1; then
+  echo "[ERROR] The Docker Compose plugin is missing. See HOWTO.md for installation instructions."
   exit 1
 fi
 
@@ -27,7 +44,7 @@ fi
 if ! docker info 2>/dev/null | grep -qi nvidia; then
   echo "[WARNING] NVIDIA runtime not detected in Docker."
   echo "          GPU passthrough may fail. Install the NVIDIA Container Toolkit:"
-  echo "          https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html"
+  echo "          See HOWTO.md, or https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/install-guide.html"
   echo ""
   read -rp "Continue anyway? [y/N] " answer
   if [[ ! "$answer" =~ ^[Yy]$ ]]; then
@@ -35,75 +52,69 @@ if ! docker info 2>/dev/null | grep -qi nvidia; then
   fi
 fi
 
-# --- Config ---
-REPO_URL="https://github.com/tsondo/a1111-docker.git"
-REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
-CONTAINER_UID=1000
-CONTAINER_GID=1000
-
-# Ensure .env exists
-if [ ! -f "$REPO_DIR/.env" ]; then
-  echo "[INFO] No .env file found. Copying from .env.sample..."
-  cp "$REPO_DIR/.env.sample" "$REPO_DIR/.env"
-fi
-
-# Migrate old .env variable names to new ones
-if grep -q '^REPO_DIR=' "$REPO_DIR/.env" 2>/dev/null; then
-  echo "[INFO] Migrating .env: REPO_DIR -> REPOSITORIES_DIR"
-  sed -i 's/^REPO_DIR=/REPOSITORIES_DIR=/' "$REPO_DIR/.env"
-fi
-if grep -q '^HF_MODELS_PATH=' "$REPO_DIR/.env" 2>/dev/null; then
-  echo "[INFO] Migrating .env: HF_MODELS_PATH -> HF_MODELS_DIR"
-  sed -i 's/^HF_MODELS_PATH=/HF_MODELS_DIR=/' "$REPO_DIR/.env"
-fi
-if grep -q '^WILDCARD_DIR=' "$REPO_DIR/.env" 2>/dev/null; then
-  echo "[INFO] Migrating .env: removing unused WILDCARD_DIR"
-  sed -i '/^WILDCARD_DIR=/d' "$REPO_DIR/.env"
-fi
-
 echo "[INFO] Starting setup..."
+cd "$REPO_DIR"
 
-# --- Parse flags ---
-USE_CACHE=true
-DETACH=false
-for arg in "$@"; do
-  case "$arg" in
-    --no-cache) USE_CACHE=false; echo "[INFO] Rebuilding container image with --no-cache" ;;
-    -d|--detach) DETACH=true ;;
-  esac
+# --- Ensure .env exists ---
+if [ ! -f .env ]; then
+  echo "[INFO] No .env file found. Copying from .env.sample..."
+  cp .env.sample .env
+fi
+
+# --- Migrate obsolete .env variables ---
+# These directories are no longer mounted: the container image now ships
+# its own repositories/ and configs/, and the HuggingFace cache lives
+# under cache/huggingface.
+for var in REPO_DIR HF_MODELS_PATH WILDCARD_DIR REPOSITORIES_DIR HF_MODELS_DIR CONFIG_DIR; do
+  if grep -q "^${var}=" .env 2>/dev/null; then
+    echo "[INFO] Migrating .env: removing obsolete ${var}"
+    sed -i "/^${var}=/d" .env
+  fi
 done
 
-# --- Clone or update repo ---
-if [ -d "$REPO_DIR/.git" ]; then
-  echo "[INFO] Repo already exists..."
-
-  current_branch=$(git -C "$REPO_DIR" rev-parse --abbrev-ref HEAD)
-
-  if [ "$current_branch" = "main" ]; then
-    echo "[INFO] On main branch, pulling latest..."
-    OLD_HASH=$(git -C "$REPO_DIR" rev-parse HEAD:setup.sh 2>/dev/null || echo "none")
-    git -C "$REPO_DIR" pull --ff-only || {
-      echo "[WARNING] Fast-forward pull failed (upstream has diverged or there are local changes)."
-      echo "          Skipping update — resolve manually with: git -C $REPO_DIR pull"
-    }
-    NEW_HASH=$(git -C "$REPO_DIR" rev-parse HEAD:setup.sh 2>/dev/null || echo "none")
-    if [ "$OLD_HASH" != "$NEW_HASH" ]; then
-      echo "[INFO] setup.sh was updated during pull. Please re-run it to apply changes."
-      exit 0
-    fi
+# --- Record the host user's UID/GID for the image build ---
+for pair in "USER_ID:$USER_ID" "GROUP_ID:$GROUP_ID"; do
+  var="${pair%%:*}"; val="${pair##*:}"
+  if grep -q "^${var}=" .env; then
+    sed -i "s/^${var}=.*/${var}=${val}/" .env
   else
-    echo "[INFO] On branch '$current_branch', skipping git pull to preserve local changes."
+    echo "${var}=${val}" >> .env
   fi
-else
-  echo "[INFO] Cloning fresh repo..."
-  git clone "$REPO_URL" "$REPO_DIR"
-fi
+done
 
-cd "$REPO_DIR"
+# --- Migrate HuggingFace cache from the old hf_models/ location ---
+for old_hf in hf_models HF_models; do
+  if [ -d "$old_hf" ] && [ -n "$(ls -A "$old_hf" 2>/dev/null)" ]; then
+    echo "[INFO] Migrating $old_hf/ contents to cache/huggingface/ (new location)..."
+    mkdir -p cache/huggingface
+    for f in "$old_hf"/* "$old_hf"/.[!.]*; do
+      [ -e "$f" ] || continue
+      base="$(basename "$f")"
+      if [ -e "cache/huggingface/$base" ]; then
+        echo "[WARNING] cache/huggingface/$base already exists, leaving $f in place."
+      else
+        mv "$f" cache/huggingface/
+      fi
+    done
+    rmdir "$old_hf" 2>/dev/null && echo "[INFO] Removed empty $old_hf/" || true
+  fi
+done
+
+# --- Notes about directories that are no longer mounted ---
+if [ -d repositories ] && [ -n "$(ls -A repositories 2>/dev/null)" ]; then
+  echo "[INFO] The repositories/ folder is no longer used (the image ships its own copies)."
+  echo "       You can delete it to free space: rm -rf repositories/"
+fi
+if [ -d configs ]; then
+  extra_configs=$(find configs -type f ! -name 'v1-inference.yaml' 2>/dev/null | head -1)
+  if [ -n "$extra_configs" ]; then
+    echo "[WARNING] configs/ is no longer mounted into the container."
+    echo "          Custom model .yaml files should sit next to their checkpoint in models/Stable-diffusion/."
+  fi
+fi
 
 # --- Persistent directories (must match docker-compose mounts) ---
 PERSIST_DIRS=(
-  configs
   models
   outputs
   extensions
@@ -112,63 +123,57 @@ PERSIST_DIRS=(
   logs
   cache
   cache/huggingface
-  repositories
   pip-cache
-  hf_models
 )
 
 echo "[INFO] Creating persistent directories..."
 for d in "${PERSIST_DIRS[@]}"; do
-  mkdir -p "$REPO_DIR/$d"
+  mkdir -p "$d"
 done
 
-# Fix ownership only for directories that don't already match the container UID:GID.
+# Fix ownership only for directories that don't already match the user.
 needs_chown=false
 for d in "${PERSIST_DIRS[@]}"; do
-  dir_uid=$(stat -c '%u' "$REPO_DIR/$d")
-  dir_gid=$(stat -c '%g' "$REPO_DIR/$d")
-  if [ "$dir_uid" != "$CONTAINER_UID" ] || [ "$dir_gid" != "$CONTAINER_GID" ]; then
+  dir_uid=$(stat -c '%u' "$d")
+  dir_gid=$(stat -c '%g' "$d")
+  if [ "$dir_uid" != "$USER_ID" ] || [ "$dir_gid" != "$GROUP_ID" ]; then
     needs_chown=true
     break
   fi
 done
 
 if $needs_chown; then
-  echo "[INFO] Fixing host-side ownership to match container UID:GID ($CONTAINER_UID:$CONTAINER_GID)..."
+  echo "[INFO] Fixing host-side ownership to $USER_ID:$GROUP_ID..."
   for d in "${PERSIST_DIRS[@]}"; do
-    sudo chown "$CONTAINER_UID:$CONTAINER_GID" "$REPO_DIR/$d"
+    sudo chown "$USER_ID:$GROUP_ID" "$d"
   done
 else
   echo "[INFO] Directory ownership already correct, skipping chown."
 fi
 
 # --- Prepopulate UI config files if missing ---
+# These are mounted as single files, so they must exist before "up".
 for f in config.json ui-config.json; do
-  TARGET="$REPO_DIR/$f"
-  if [ ! -s "$TARGET" ]; then
-    echo "{}" > "$TARGET"
+  if [ ! -s "$f" ]; then
+    echo "{}" > "$f"
     echo "[INFO] Created empty $f in repo root"
   fi
 done
 
 # styles.csv needs a valid CSV header, not JSON
-if [ ! -s "$REPO_DIR/styles.csv" ]; then
-  echo "name,prompt,negative_prompt" > "$REPO_DIR/styles.csv"
+if [ ! -s styles.csv ]; then
+  echo "name,prompt,negative_prompt" > styles.csv
   echo "[INFO] Created styles.csv with header row"
 fi
 
-# --- Ensure default model config exists in expected path ---
-CONFIG_PATH="$REPO_DIR/configs/v1-inference.yaml"
-if [ ! -f "$CONFIG_PATH" ]; then
-  echo "[INFO] Downloading v1-inference.yaml to configs/"
-  curl -fsSL -o "$CONFIG_PATH" https://raw.githubusercontent.com/CompVis/stable-diffusion/main/configs/stable-diffusion/v1-inference.yaml || {
-    echo "[WARNING] Failed to download v1-inference.yaml. You may need to add it manually."
-    rm -f "$CONFIG_PATH"
-  }
-fi
-
-# --- Build container ---
-if $USE_CACHE; then
+# --- Build or pull the image ---
+if $PULL; then
+  echo "[INFO] Pulling prebuilt image from GHCR..."
+  if ! docker compose pull; then
+    echo "[WARNING] Pull failed (no published image, or no network). Building locally instead..."
+    docker compose build
+  fi
+elif $USE_CACHE; then
   docker compose build
 else
   docker compose build --no-cache

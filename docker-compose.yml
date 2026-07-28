@@ -3,7 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: stable-diffusion-webui:latest
+      args:
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+    image: ghcr.io/tsondo/a1111-docker:latest
     container_name: a1111
     ports:
       - "7860:7860"
@@ -11,24 +14,15 @@ services:
       - ./config.json:/workspace/stable-diffusion-webui/config.json
       - ./ui-config.json:/workspace/stable-diffusion-webui/ui-config.json
       - ./styles.csv:/workspace/stable-diffusion-webui/styles.csv
-      - ${CONFIG_DIR}:/workspace/stable-diffusion-webui/configs
-      - ${MODEL_DIR}:/workspace/stable-diffusion-webui/models
-      - ${OUTPUT_DIR}:/workspace/stable-diffusion-webui/outputs
-      - ${EXT_DIR}:/workspace/stable-diffusion-webui/extensions
-      - ${EMBEDDINGS_DIR}:/workspace/stable-diffusion-webui/embeddings
-      - ${LOGS_DIR}:/workspace/stable-diffusion-webui/logs
-      - ${CACHE_DIR}:/workspace/stable-diffusion-webui/cache
-      - ${HF_MODELS_DIR}:/workspace/stable-diffusion-webui/cache/huggingface
-      - ${REPOSITORIES_DIR}:/workspace/stable-diffusion-webui/repositories
-      - ${PIP_CACHE_DIR}:/workspace/stable-diffusion-webui/pip-cache
+      - ${MODEL_DIR:-./models}:/workspace/stable-diffusion-webui/models
+      - ${OUTPUT_DIR:-./outputs}:/workspace/stable-diffusion-webui/outputs
+      - ${EXT_DIR:-./extensions}:/workspace/stable-diffusion-webui/extensions
+      - ${EMBEDDINGS_DIR:-./embeddings}:/workspace/stable-diffusion-webui/embeddings
+      - ${LOGS_DIR:-./logs}:/workspace/stable-diffusion-webui/logs
+      - ${CACHE_DIR:-./cache}:/workspace/stable-diffusion-webui/cache
+      - ${PIP_CACHE_DIR:-./pip-cache}:/workspace/stable-diffusion-webui/pip-cache
     environment:
       - COMMANDLINE_ARGS=--xformers --enable-insecure-extension-access --listen --port 7860
-      - LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libtcmalloc.so
-      - HF_HOME=/workspace/stable-diffusion-webui/cache/huggingface
-      - MPLCONFIGDIR=/workspace/stable-diffusion-webui/cache/matplotlib
-      - STABLE_DIFFUSION_REPO=https://github.com/w-e-w/stablediffusion.git
-    env_file:
-      - .env
     deploy:
       resources:
         reservations:

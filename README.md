@@ -1,13 +1,15 @@
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Build](https://github.com/tsondo/a1111-docker/actions/workflows/publish.yml/badge.svg)
 ![CUDA](https://img.shields.io/badge/CUDA-12.8-blue)
-![Torch](https://img.shields.io/badge/Torch-2.2.2-informational)
+![Torch](https://img.shields.io/badge/Torch-cu128-informational)
 ![xFormers](https://img.shields.io/badge/xFormers-enabled-success)
-![Extension](https://img.shields.io/badge/ADetailer-persistent-success)
+![A1111](https://img.shields.io/badge/A1111-v1.10.1-informational)
 ![License](https://img.shields.io/github/license/tsondo/a1111-docker)
 
 # 🧠 a1111-docker
 
 A reproducible, persistent Docker setup for running [AUTOMATIC1111's Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui) with GPU acceleration, extension support, and clean config management.
+
+Everything the WebUI needs — Python environment, requirements, and the sub-repositories A1111 depends on — is baked into the image at build time, pinned to a known-good release. First launch needs no network access and no surprise downloads.
 
 ---
 
@@ -24,28 +26,15 @@ Check out the [GETTING_STARTED.md](GETTING_STARTED.md) guide for a plain-languag
 **Prerequisites:** Docker Engine, Docker Compose plugin, and the NVIDIA Container Toolkit must be installed.
 If you need help setting these up, see the [HOWTO guide](HOWTO.md).
 
-### 1. Clone the repo
-
 ```bash
 git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
 cd ~/a1111-docker
-```
-
-### 2. Create your `.env` file
-
-```bash
-cp .env.sample .env
-```
-
-You can customize the paths inside `.env` if needed. The defaults assume you're running from `~/a1111-docker`.
-
-### 3. Run setup and launch
-
-```bash
 bash setup.sh
 ```
 
-Access the WebUI at http://localhost:7860
+That's it. `setup.sh` creates the persistent folders and config files, builds the image, and starts the container. Access the WebUI at http://localhost:7860
+
+A `.env` file is optional — the defaults work out of the box. Copy `.env.sample` to `.env` if you want to customize where models, outputs, etc. are stored.
 
 ---
 
@@ -59,59 +48,78 @@ Once Docker is working inside your WSL terminal:
 ```bash
 git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
 cd ~/a1111-docker
-cp .env.sample .env
 bash setup.sh
 ```
 
 Access the WebUI at http://localhost:7860 from your Windows browser.
 
-**Important:** Run all commands inside WSL -- not PowerShell or CMD.
+**Important:** Run all commands inside WSL -- not PowerShell or CMD. Keep the folder inside the Linux filesystem (`~/a1111-docker`), not under `/mnt/c/`, for much better performance.
+
+---
+
+## 📦 Prebuilt image (skip the build)
+
+Building locally downloads several GB of CUDA wheels and takes a while. If a prebuilt image has been published to GHCR you can pull it instead:
+
+```bash
+bash setup.sh --pull
+```
+
+If no published image is available, the script falls back to building locally.
 
 ---
 
 ## 🚀 What setup.sh does
 
-- Creates persistent folders for configs, models, outputs, extensions, etc.
+- Creates persistent folders for models, outputs, extensions, etc.
 - Prepopulates empty config files if missing
-- Ensures correct ownership and permissions
-- Prepares everything for `docker compose up`
+- Records your user/group ID so files created by the container are owned by you
+- Migrates settings from older versions of this project
+- Builds (or pulls, with `--pull`) the image and starts the container
+
+Flags: `--pull` (use prebuilt image), `--no-cache` (full rebuild), `-d`/`--detach` (run in background), `-h` (help).
 
 ---
 
 ## 🧱 Persistent Folders
 
-These folders are mounted into the container and survive restarts:
+These folders are mounted into the container and survive restarts and rebuilds:
 
 | Host Folder       | Container Path                                      | Purpose                          |
 |-------------------|-----------------------------------------------------|----------------------------------|
-| `configs/`        | `/workspace/stable-diffusion-webui/configs`         | UI and runtime config files      |
 | `models/`         | `/workspace/stable-diffusion-webui/models`          | Base models and checkpoints      |
 | `outputs/`        | `/workspace/stable-diffusion-webui/outputs`         | Generated images                 |
 | `extensions/`     | `/workspace/stable-diffusion-webui/extensions`      | Installed extensions             |
 | `embeddings/`     | `/workspace/stable-diffusion-webui/embeddings`      | Textual inversion embeddings     |
 | `logs/`           | `/workspace/stable-diffusion-webui/logs`            | Runtime logs                     |
-| `cache/`          | `/workspace/stable-diffusion-webui/cache`           | Model and UI cache               |
-| `repositories/`   | `/workspace/stable-diffusion-webui/repositories`    | Extension repos and wildcards    |
+| `cache/`          | `/workspace/stable-diffusion-webui/cache`           | HuggingFace and UI cache         |
+| `pip-cache/`      | `/workspace/stable-diffusion-webui/pip-cache`       | Pip download cache               |
+
+UI state is persisted as individual files in the repo root: `config.json`, `ui-config.json`, and `styles.csv`.
+
+Everything else — the Python environment, A1111 itself, and its sub-repositories — lives inside the image. Rebuilding or updating the image never touches your persistent data.
 
 ---
 
 ## 🧩 Extension Persistence
 
-Any extensions installed via the WebUI (e.g., ADetailer) will persist across restarts. They are stored in the `extensions/` folder and mounted into the container.
+Any extensions installed via the WebUI (e.g., ADetailer) will persist across restarts. They are stored in the `extensions/` folder and mounted into the container. Their Python dependencies install into the container on first start after a rebuild; the mounted `pip-cache/` keeps that fast.
 
 ---
 
-## ⚠️ Why venv is *not* persisted
+## 📌 Version pinning
 
-You may notice there is no `venv/` entry in the persistent folders above.  
-That's intentional: the Python virtual environment is built inside the image at build time.  
-If you mount an empty host folder over `/workspace/stable-diffusion-webui/venv`, it hides the prebuilt environment and causes startup errors (`venv/bin/activate: No such file or directory`).  
+The image builds AUTOMATIC1111 at a pinned release (`v1.10.1`) rather than whatever `master` happens to be that day, so builds are reproducible. To try a different release:
 
-Instead, this project persists the **pip cache** (`pip-cache/`), so package downloads are reused across runs.  
-This keeps contributor setup simple and portable: extensions install their dependencies once, and subsequent installs are fast thanks to the cache, without risking an empty overlay of the venv.
+```bash
+docker compose build --build-arg A1111_VERSION=v1.10.0
+```
+
+or edit `A1111_VERSION` in the Dockerfile.
+
+> **Note:** Stability-AI deleted their original `stablediffusion` repository from GitHub, which broke older versions of this project (and stock A1111 installs). The image now clones a fork that preserves the exact commit A1111 expects.
 
 ---
-
 
 ## 📦 Preloading Models (Optional)
 
@@ -119,54 +127,47 @@ To pre-load model downloads before first launch:
 
 ```bash
 mkdir -p ~/a1111-docker/models/Stable-diffusion
-wget -O ~/a1111-docker/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors https://huggingface.co/runwayml/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors
+wget -O ~/a1111-docker/models/Stable-diffusion/v1-5-pruned-emaonly.safetensors https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/resolve/main/v1-5-pruned-emaonly.safetensors
 ```
 
 ---
 
-## 🔁 Daily Usage: Bringing the Container Up and Down
+## 🔁 Daily Usage
 
-💡 Tip: To ensure you always have the latest build, correct permissions, and all persistent folders in place, it's best to start the WebUI using `setup.sh`.  
-
-``` 
-bash setup.sh
-```
-
-You can still run `docker compose up` directly, but the script makes sure updates and setup steps aren't missed.
-
-bash setup.sh will:
-
-- Pull the latest repo updates
-- Rebuild the container only if needed
-- Verify all persistent folders and config files
-- Launch the WebUI container
-
-You can then access the interface at http://localhost:7860
-
----
-
-### 🧪 Optional: Force Rebuild with `--no-cache`
-
-If you're troubleshooting or testing Dockerfile changes, you can force a full rebuild:
+Start:
 
 ```bash
-bash setup.sh --no-cache
+docker compose up -d
 ```
 
-This bypasses Docker's layer cache and rebuilds the container from scratch. Use this if:
-
-- You modified the Dockerfile or build context
-- You suspect stale layers or broken dependencies
-- You want to test a clean build environment
-
----
-
-### 🛑 To Stop the Container
+Stop:
 
 ```bash
 docker compose down
 ```
 
-This stops the running container but preserves all persistent data.
+Watch logs:
+
+```bash
+docker compose logs -f
+```
+
+Running `bash setup.sh` again is always safe — it re-verifies folders and configs before starting.
 
 ---
+
+## ⬆️ Updating
+
+```bash
+cd ~/a1111-docker
+git pull
+bash setup.sh
+```
+
+Docker only rebuilds the layers that changed. Your models, outputs, and settings are untouched.
+
+If you're troubleshooting a broken build, force a clean one:
+
+```bash
+bash setup.sh --no-cache
+```

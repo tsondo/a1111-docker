@@ -2,6 +2,9 @@
 # NVIDIA CUDA 12.8 runtime on Ubuntu 22.04
 FROM nvidia/cuda:12.8.0-runtime-ubuntu22.04
 
+LABEL org.opencontainers.image.source="https://github.com/tsondo/a1111-docker"
+LABEL org.opencontainers.image.description="AUTOMATIC1111 Stable Diffusion WebUI with CUDA 12.8, ready to run"
+
 # System dependencies: Python, git, runtime libs
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3 python3-pip python3-venv git wget \
@@ -56,47 +59,52 @@ RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_
         mediapipe \
         ultralytics
 
-# Clone AUTOMATIC1111 and sub-repos with retry
-RUN set -eux; \
-  clone_repo() { \
-    local url="$1"; \
-    local target="$2"; \
-    local name="$3"; \
-    local attempts=0; \
-    until [ "$attempts" -ge 3 ]; do \
-      echo "Cloning $name (attempt $((attempts+1)) of 3)..."; \
-      git clone --depth 1 "$url" "$target" && return 0; \
-      echo "Clone failed for $name. Retrying in 30 seconds..."; \
-      attempts=$((attempts+1)); \
-      sleep 30; \
-    done; \
-    echo "Failed to clone $name after 3 attempts. Aborting build."; \
-    exit 1; \
-  }; \
-  clone_repo https://github.com/AUTOMATIC1111/stable-diffusion-webui.git /tmp/a1111-src "WebUI" && \
-  cp -a /tmp/a1111-src/. /workspace/stable-diffusion-webui/ && \
-  rm -rf /tmp/a1111-src/.git; \
-  clone_repo https://github.com/crowsonkb/k-diffusion.git repositories/k-diffusion "k-diffusion"; \
-  clone_repo https://github.com/CompVis/taming-transformers.git repositories/taming-transformers "taming-transformers"; \
-  clone_repo https://github.com/w-e-w/stablediffusion.git repositories/stablediffusion "stablediffusion"; \
-  clone_repo https://github.com/openai/CLIP.git repositories/CLIP "CLIP"; \
-  clone_repo https://github.com/AUTOMATIC1111/stable-diffusion-webui-assets.git repositories/stable-diffusion-webui-assets "webui-assets"
+# Old-style packages (e.g. openai/CLIP) import pkg_resources at build
+# time, which setuptools>=81 removed. The venv pins setuptools<81, but
+# pip's isolated build environments install the latest setuptools unless
+# constrained — PIP_CONSTRAINT reaches inside them, and also covers
+# packages that extensions install at runtime.
+RUN echo "setuptools<81" > /home/webui/pip-constraints.txt
+ENV PIP_CONSTRAINT="/home/webui/pip-constraints.txt"
 
-# Install CLIP from cloned repo (its setup.py uses pkg_resources,
-# which is available via the setuptools<81 pin from Layer 1).
+# Fetch AUTOMATIC1111 at a pinned release. Bump A1111_VERSION to upgrade.
+# In-place init+fetch because the workdir already contains venv/.
+ARG A1111_VERSION=v1.10.1
+RUN set -eux; \
+    git init .; \
+    git remote add origin https://github.com/AUTOMATIC1111/stable-diffusion-webui.git; \
+    for i in 1 2 3; do \
+      if git fetch --depth 1 origin tag "${A1111_VERSION}"; then break; fi; \
+      if [ "$i" = 3 ]; then echo "Failed to fetch A1111 after 3 attempts."; exit 1; fi; \
+      echo "Fetch failed (attempt $i of 3). Retrying in 15 seconds..."; \
+      sleep 15; \
+    done; \
+    git -c advice.detachedHead=false checkout -f "${A1111_VERSION}"
+
+# Stability-AI deleted their stablediffusion repo; use a fork that
+# still contains the commit A1111 pins (cf1d67a6).
+ENV STABLE_DIFFUSION_REPO="https://github.com/w-e-w/stablediffusion.git"
+
+# Let A1111's own launcher prepare everything at build time: it clones
+# the sub-repos (stablediffusion, generative-models, k-diffusion, BLIP,
+# assets) at the exact commits this release expects and installs the
+# remaining Python requirements. First container start then needs no
+# network access at all.
 RUN --mount=type=cache,target=/home/webui/.cache/pip,uid=${USER_ID},gid=${GROUP_ID} \
-    venv/bin/pip install repositories/CLIP
+    venv/bin/python launch.py --skip-torch-cuda-test --exit
 
 # Create runtime directories that may not exist in the repo
 RUN mkdir -p cache/huggingface cache/matplotlib models/hypernetworks
 
 # Environment configuration
 ENV HF_HOME="/workspace/stable-diffusion-webui/cache/huggingface"
+ENV MPLCONFIGDIR="/workspace/stable-diffusion-webui/cache/matplotlib"
 ENV PIP_CACHE_DIR="/workspace/stable-diffusion-webui/pip-cache"
-ENV TORCH_COMMAND="echo 'Skipping torch install, already provided in venv'"
+ENV LD_PRELOAD="/usr/lib/x86_64-linux-gnu/libtcmalloc.so"
 
-# Health check: wait for Gradio to respond
-HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+# Health check: wait for Gradio to respond. Generous start period —
+# first launch loads a model into VRAM, which can take a few minutes.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=300s --retries=3 \
   CMD curl -f http://localhost:7860/ || exit 1
 
 EXPOSE 7860

@@ -22,19 +22,18 @@ This build runs A1111 inside a Docker container, so you don't have to worry abou
 
 ## 📦 Why this build?
 
-This Docker setup separates what's **ephemeral** (rebuilt each time) from what's **persistent** (your data and settings):
+This Docker setup separates what's **baked into the image** (rebuilt only when you update) from what's **persistent** (your data and settings):
 
-- **Ephemeral (inside the container):**
-  - Python environment
-  - Installed packages
-  - The container filesystem itself
+- **Inside the image (rebuilt on update, never lost by accident):**
+  - Python environment and all installed packages
+  - AUTOMATIC1111 itself, pinned to a known-good release
+  - The sub-repositories A1111 depends on
 
 - **Persistent (mounted from your host):**
   - `models/` → your Stable Diffusion checkpoints
   - `outputs/` → generated images
-  - `configs/` → YAML configs
   - `extensions/` → installed extensions
-  - `embeddings/`, `logs/`, `cache/`, `repositories/`
+  - `embeddings/`, `logs/`, `cache/`
   - UI state files: `config.json`, `ui-config.json`, `styles.csv`
 
 This means you can rebuild or update the container at any time without losing your models, outputs, or settings.
