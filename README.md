@@ -29,10 +29,12 @@ If you need help setting these up, see the [HOWTO guide](HOWTO.md).
 ```bash
 git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
 cd ~/a1111-docker
-bash setup.sh
+bash setup.sh --pull
 ```
 
-That's it. `setup.sh` creates the persistent folders and config files, builds the image, and starts the container. Access the WebUI at http://localhost:7860
+That's it. `setup.sh` creates the persistent folders and config files, pulls the prebuilt image (about a 7 GB download), and starts the container. Access the WebUI at http://localhost:7860
+
+Prefer to build the image yourself? Run `bash setup.sh` without `--pull` — see [Building locally](#-building-locally) below.
 
 A `.env` file is optional — the defaults work out of the box. Copy `.env.sample` to `.env` if you want to customize where models, outputs, etc. are stored.
 
@@ -48,7 +50,7 @@ Once Docker is working inside your WSL terminal:
 ```bash
 git clone https://github.com/tsondo/a1111-docker.git ~/a1111-docker
 cd ~/a1111-docker
-bash setup.sh
+bash setup.sh --pull
 ```
 
 Access the WebUI at http://localhost:7860 from your Windows browser.
@@ -57,15 +59,15 @@ Access the WebUI at http://localhost:7860 from your Windows browser.
 
 ---
 
-## 📦 Prebuilt image (skip the build)
+## 📦 The prebuilt image
 
-Building locally downloads several GB of CUDA wheels and takes a while. If a prebuilt image has been published to GHCR you can pull it instead:
+A ready-to-run image is published to GitHub Container Registry as [`ghcr.io/tsondo/a1111-docker`](https://github.com/tsondo/a1111-docker/pkgs/container/a1111-docker), built by CI from this repo with A1111 pinned to a known-good release. `bash setup.sh --pull` uses it automatically. If the pull fails (e.g. no network to GHCR), the script falls back to building locally.
 
-```bash
-bash setup.sh --pull
-```
+---
 
-If no published image is available, the script falls back to building locally.
+## 🔨 Building locally
+
+Running `bash setup.sh` without `--pull` builds the same image on your machine instead. This downloads several GB of CUDA wheels and takes a while, but is useful if you want to modify the Dockerfile or pin a different A1111 version.
 
 ---
 
@@ -161,10 +163,10 @@ Running `bash setup.sh` again is always safe — it re-verifies folders and conf
 ```bash
 cd ~/a1111-docker
 git pull
-bash setup.sh
+bash setup.sh --pull
 ```
 
-Docker only rebuilds the layers that changed. Your models, outputs, and settings are untouched.
+This picks up the latest published image (or, without `--pull`, rebuilds only the layers that changed). Your models, outputs, and settings are untouched.
 
 If you're troubleshooting a broken build, force a clean one:
 
